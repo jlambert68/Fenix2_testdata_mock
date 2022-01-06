@@ -1,0 +1,28 @@
+syntax = "proto3";
+package common_grpc_api;
+
+enum CurrentVersionEnum {
+    VERSION_0_1_0 = 0; // Current version
+}
+
+/*
+enum QMLModelTypeToAndFromBackend {
+    DomainModel = 0; //
+    PluginModel = 1;
+}
+
+// Message defining QMLModelTypeToAndFromBackend used
+message QMLModelTypeToAndFromBackendMessage {
+    QMLModelTypeToAndFromBackend qMLModelTypeToAndFromBackendType = 1;
+}
+*/
+
+// Parameter used for Empty inputs
+message EmptyParameter {
+}
+
+// Ack/Nack- Response message with comment
+message AckNackResponse {
+    bool acknack = 1; // True=Ack, False=Nack
+    string comments = 2; //Comments if needed
+}

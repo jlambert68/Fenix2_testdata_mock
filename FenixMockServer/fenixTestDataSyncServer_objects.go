@@ -1,15 +1,15 @@
 package FenixMockServer
 
 import (
+	//fenixTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixTestDataSyncServerGrpcApi/proto"
+	"Fenix2_testdata_mock/common_config"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"jlambert/FenixInception3/FenixTestInstructionBuilder/common_config"
-	"jlambert/FenixInception3/FenixTestInstructionBuilder/grpc_api/qml_server_grpc_api"
 	"net"
 	"time"
 )
 
-type TestInstructionBackendObject_struct struct {
+type fenixTestDataSyncServerObject_struct struct {
 	logger                *logrus.Logger
 	iAmBusy               bool
 	uuid                  string
@@ -22,23 +22,24 @@ type TestInstructionBackendObject_struct struct {
 	qmlServerHasConnected bool
 }
 
-var testInstructionBackendObject *TestInstructionBackendObject_struct
+var fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct
 
 // Global connection constants
 var localServerEngineLocalPort = common_config.TestInstructionBackendServer_initial_port
 
 var (
-	registerTestInstructionBackendServer *grpc.Server
-	lis                                  net.Listener
+	registerfenixTestDataSyncServerServer *grpc.Server
+	lis                                   net.Listener
 )
 
+/*
 var (
-	// Standard gRPC Server
+	// Standard gRPC Clientr
 	remoteQmlServerConnection *grpc.ClientConn
 	gRpcClientForQmlServer    qml_server_grpc_api.QmlGrpcServicesClient
 
 	qmlServer_address_to_dial string = common_config.QmlServer_address + common_config.QmlServer_port
 )
-
+*/
 // Server used for register clients Name, Ip and Por and Clients Test Enviroments and Clients Test Commandst
-type TestInstructionBackendServer struct{}
+type fenixTestDataSyncServerServer struct{}

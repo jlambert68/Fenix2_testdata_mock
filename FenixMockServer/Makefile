@@ -2,15 +2,27 @@
 # cat -e -t -v Makefile
 
 #.DEFAULT_GOAL := buildAndRun
+# Migration steps for new Golang gRPC installation
+# https://stackoverflow.com/questions/60578892/protoc-gen-go-grpc-program-not-found-or-is-not-executable
+
 
 compileProto:
 	@echo "Compile proto file..."
-#~/Programs/protoc-3.13.0-linux-x86_64/bin/protoc  -I ../grpc_api/fenixTestDataSyncServerGrpcApi --go_out=plugins=grpc:../grpc_api/fenixTestDataSyncServerGrpcApi ../grpc_api/fenixTestDataSyncServerGrpcApi/fenixTestDataSyncServerGrpcApi.proto
-#	sed -i 's/\/\/import "common_grpc_api.proto";/import "common_grpc_api.proto";/' ..\/grpc_api\/fenixTestDataSyncServerGrpcApi\/fenixTestDataSyncServerGrpcApi.proto
-#	sed -i 's/import "..\/common_grpc_api\/common_grpc_api.proto";/\/\/import "..\/common_grpc_api\/common_grpc_api.proto";/' ..\/grpc_api\/fenixTestDataSyncServerGrpcApi\/fenixTestDataSyncServerGrpcApi.proto
+# Old
+#	protoc  -I ../grpc_api/fenixTestDataSyncServerGrpcApi --go_out=plugins=grpc:../grpc_api/fenixTestDataSyncServerGrpcApi ../grpc_api/fenixTestDataSyncServerGrpcApi/fenixTestDataSyncServerGrpcApi.proto
+# New
+ # generate the messages
+# protoc --go_out="$GO_GEN_PATH" -I "$dependecies" "$proto"
+	cd ../grpc_api/fenixTestDataSyncServerGrpcApi && protoc --go_out=. fenixTestDataSyncServerGrpcApi.proto
 
-	~/Programs/protoc-3.13.0-linux-x86_64/bin/protoc  -I ../grpc_api/backend_server_grpc_api -I ../grpc_api/common_grpc_api --go_out=plugins=grpc:../grpc_api/backend_server_grpc_api ../grpc_api/backend_server_grpc_api/backend_grpc_server.proto
+# generate the services
+# protoc --go-grpc_out="$GO_GEN_PATH" -I "$dependecies" "$proto"
+	cd ../grpc_api/fenixTestDataSyncServerGrpcApi && protoc --go-grpc_out=. fenixTestDataSyncServerGrpcApi.proto
 
-#	sed -i 's/import "common_grpc_api.proto";/\/\/import "common_grpc_api.proto";/' ..\/grpc_api\/fenixTestDataSyncServerGrpcApi\/fenixTestDataSyncServerGrpcApi.proto
-#	sed -i 's/\/\/import "..\/common_grpc_api\/common_grpc_api.proto";/import "..\/common_grpc_api\/common_grpc_api.proto";/' ..\/grpc_api\/fenixTestDataSyncServerGrpcApi\/fenixTestDataSyncServerGrpcApi.proto
+#	sed -i 's/import "common_grpc_api.proto";/\/\/import "common_grpc_api.proto";/' ..\/grpc_api\/fenixClientTestDataSyncServerGrpcApi\/fenixClientTestDataSyncServerGrpcApi.proto
+#	sed -i 's/\/\/import "..\/common_grpc_api\/common_grpc_api.proto";/import "..\/common_grpc_api\/common_grpc_api.proto";/' ..\/grpc_api\/fenixClientTestDataSyncServerGrpcApi\/fenixClientTestDataSyncServerGrpcApi.proto
 
+#protoc version: 3.17.3
+#protoc-gen-go: 1.26 (latest)
+#protoc-gen-go-grpc: 1.1 (latest)
+#golang: 1.17

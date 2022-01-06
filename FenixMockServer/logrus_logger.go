@@ -1,15 +1,15 @@
 package FenixMockServer
 
 import (
+	"Fenix2_testdata_mock/common_config"
 	"github.com/sirupsen/logrus"
-	"jlambert/FenixInception3/FenixTestInstructionBuilder/common_config"
 	"log"
 	"os"
 	"time"
 )
 
-func (testInstructionBackendObject *TestInstructionBackendObject_struct) InitLogger(filename string) {
-	testInstructionBackendObject.logger = logrus.StandardLogger()
+func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) InitLogger(filename string) {
+	fenixTestDataSyncServerObject.logger = logrus.StandardLogger()
 
 	switch common_config.LoggingLevel {
 
@@ -39,12 +39,12 @@ func (testInstructionBackendObject *TestInstructionBackendObject_struct) InitLog
 	//If no file then set standard out
 
 	if filename == "" {
-		testInstructionBackendObject.logger.Out = os.Stdout
+		fenixTestDataSyncServerObject.logger.Out = os.Stdout
 
 	} else {
 		file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0666)
 		if err == nil {
-			testInstructionBackendObject.logger.Out = file
+			fenixTestDataSyncServerObject.logger.Out = file
 		} else {
 			log.Println("Failed to log to file, using default stderr")
 		}
