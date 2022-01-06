@@ -168,10 +168,15 @@ func recursiveTreeCreator(level int, currentMerkleFilterPath string, dataFrameTo
 	return ""
 }
 
+// Dataframe holding original File's MerkleTree
 var merkleTreeDataFrame dataframe.DataFrame
 
-func main() {
-	irisCsv, err := os.Open("data/FenixRawTestdata_14rows_211216.csv")
+// Dataframe holding changed File's MerkleTree
+var changedFilesMerkleTreeDataFrame dataframe.DataFrame
+
+func loadAndProcessFile(fileToprocess string) (string, dataframe.DataFrame) {
+
+	irisCsv, err := os.Open(fileToprocess)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -227,15 +232,86 @@ func main() {
 
 	merkleHash := recursiveTreeCreator(0, merkleFilterPath, df, "MerkleRoot/")
 
-	fmt.Println("merkleHash: ", merkleHash)
+	return merkleHash, merkleTreeDataFrame
+}
 
-	fmt.Println("merkleTreeDataFrame: ", merkleTreeDataFrame)
-
-	f, err := os.Create("MerkleData.csv")
+func writeDataFrameToCSV(fileName string, dataFrame dataframe.DataFrame) {
+	f, err := os.Create(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	merkleTreeDataFrame.WriteCSV(f)
+	dataFrame.WriteCSV(f)
+}
+
+func IsNotInListFilter(arrayToCompareWith []string) func() func(el series.Element) bool {
+	isNaNFunction := func() func(el series.Element) bool {
+		return func(el series.Element) bool {
+			var notFoundInArray bool = true
+
+			for _, value := range arrayToCompareWith {
+				if value == el.String() {
+					notFoundInArray = false
+					break
+				}
+			}
+
+			return notFoundInArray
+		}
+	}
+	return isNaNFunction
+}
+
+func main() {
+
+	originalMerkleTreeHash, orignalMerkleTree := loadAndProcessFile("data/FenixRawTestdata_14rows_211216.csv")
+	changedMerkleTreeHash, changedMerkleTree := loadAndProcessFile("data/FenixRawTestdata_14rows_211216_change.csv")
+
+	fmt.Println("Original MerkleHash: ", originalMerkleTreeHash)
+	fmt.Println("Changed MerkleHash: ", changedMerkleTreeHash)
+
+	writeDataFrameToCSV("orignalMerkleTree.csv", orignalMerkleTree)
+	writeDataFrameToCSV("changedMerkleTree.csv", changedMerkleTree)
+
+	fmt.Println("Orignal merkleTreeDataFrame: ", orignalMerkleTree)
+	fmt.Println("Changed merkleTreeDataFrame: ", changedMerkleTree)
+
+	merkleDataToKeep := orignalMerkleTree.InnerJoin(changedMerkleTree, "MerkleLevel", "MerklePath", "MerklePath", "MerkleHash", "MerkleChildHash")
+	fmt.Println("merkleDataToKeep: ", merkleDataToKeep)
+	writeDataFrameToCSV("merkleDataToKeep.csv", merkleDataToKeep)
+
+	//Try to filter out rows that is missing and is not on 'highest' MerkleLevel (leaves)
+	leaveNodeLevel := merkleDataToKeep.Col("MerkleLevel").Max()
+	isNotInListFkn := IsNotInListFilter(merkleDataToKeep.Col("MerkleChildHash").Records())
+
+	MerkleTreeToRetrieve_01 := changedMerkleTree.Filter(
+		dataframe.F{
+			Colname:    "MerkleLevel",
+			Comparator: series.Eq,
+			Comparando: leaveNodeLevel})
+
+	MerkleTreeToRetrieve := MerkleTreeToRetrieve_01.Filter(
+		dataframe.F{
+			Colname:    "MerkleChildHash",
+			Comparator: series.CompFunc,
+			Comparando: isNotInListFkn()})
+
+	writeDataFrameToCSV("MerkleTreeToRetrieve.csv", MerkleTreeToRetrieve)
+
+	MerklePathsToRetreive := MerkleTreeToRetrieve.Col("MerklePath").Records()
+
+	fmt.Println(MerklePathsToRetreive)
+	//Clean up MerklePaths to eb sent
+	for arrayPosition, merklePath := range MerklePathsToRetreive {
+		numberOfInstances := strings.Count(merklePath, "MerkleRoot/")
+		if numberOfInstances != 1 {
+			log.Fatalln("'MerkleRoot/' was not found: ", merklePath)
+		}
+		cleanedValue := merklePath[11:]
+		MerklePathsToRetreive[arrayPosition] = cleanedValue
+	}
+	fmt.Println(MerklePathsToRetreive)
+
+	//rowsToRetreiveInMerkleTree := orignalMerkleTree.InnerJoin(changedMerkleTree, "MerkleLevel", "MerklePath", "MerklePath", "MerkleHash", "MerkleChildHash")
 
 }

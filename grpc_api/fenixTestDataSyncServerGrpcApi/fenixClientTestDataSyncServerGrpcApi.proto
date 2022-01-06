@@ -1,0 +1,48 @@
+syntax = "proto3";
+package fenixClientTestDataSyncServerGrpcApi;
+
+// Used to have client and server in sync with using the same proto file version
+// Minor changes is backwards compatible with previous version
+// Major changes changes needs to be the same for server and client
+enum CurrentTestDataProtoFileVersionEnum {
+    VERSION_1_0 = 0; // Current version
+}
+
+// Parameter used for Empty inputs
+message EmptyParameter {
+}
+
+// Ack/Nack- Response message with comment
+message AckNackResponse {
+    bool acknack = 1; // True=Ack, False=Nack
+    string comments = 2; //Comments if needed
+}
+
+// Fenix Client Testdata sync server service definition.
+// ***********************
+service TestInstructionBackendGrpcServices {
+
+    //Fenix Server can check if Fenix Client Testdata sync server is alive with this service
+    rpc AreYouAlive (EmptyParameter) returns (AckNackResponse) {
+    }
+
+    // Fenix Server asks Fenix client to register itself with the Fenix Testdata sync server
+    rpc RegisterTestDataClient(EmptyParameter) returns (AckNackResponse) {
+    }
+
+    // Fenix Server asks Fenix client to send TestData MerkleHash to Fenix Testdata sync server with this service
+    rpc SendMerkleHash (EmptyParameter) returns (AckNackResponse) {
+    }
+
+    // Fenix Server asks Fenix client to send TestData MerkleTree to Fenix Testdata sync server with this service
+    rpc SendMerkleTree (EmptyParameter) returns (AckNackResponse) {
+    }
+
+    // Fenix Server asks Fenix client to send TestDataHeaders to Fenix Testdata sync server with this service
+    rpc SendTestDataHeaders (EmptyParameter) returns (AckNackResponse) {
+    }
+
+    // Fenix Server asks Fenix client to  send TestData rows to Fenix Testdata sync server with this service
+    rpc SendTestDataRows (EmptyParameter) returns (AckNackResponse) {
+    }
+}

@@ -1,0 +1,103 @@
+syntax = "proto3";
+package fenixTestDataSyncServerGrpcApi;
+
+// Used to have client and server in sync with using the same proto file version
+// Minor changes is backwards compatible with previous version
+// Major changes changes needs to be the same for server and client
+enum CurrentTestDataProtoFileVersionEnum {
+    VERSION_1_0 = 0; // Current version
+}
+
+// Parameter used for Empty inputs
+message EmptyParameter {
+}
+
+// Ack/Nack- Response message with comment
+message AckNackResponse {
+    bool acknack = 1; // True=Ack, False=Nack
+    string comments = 2; //Comments if needed
+}
+
+// Fenix Testdata sync server service definition.
+// ***********************
+service TestInstructionBackendGrpcServices {
+
+    //Fenix client can check if Fenix Testdata sync server is alive with this service
+    rpc AreYouAlive (EmptyParameter) returns (AckNackResponse) {
+    }
+
+    // Fenix client can register itself with the Fenix Testdata sync server
+    rpc RegisterTestDataClient(TestDataClientInformationMessage) returns (AckNackResponse) {
+    }
+
+    // Fenix client can send TestData MerkleHash to Fenix Testdata sync server with this service
+    rpc SendMerkleHash (MerkleHashMessage) returns (AckNackResponse) {
+    }
+
+    // Fenix client can send TestData MerkleTree to Fenix Testdata sync server with this service
+    rpc SendMerkleTree (MerkleTreeMessage) returns (AckNackResponse) {
+    }
+
+    // Fenix client can send TestDataHeaders to Fenix Testdata sync server with this service
+    rpc SendTestDataHeaders (TestDataHeaderMessage) returns (AckNackResponse) {
+    }
+
+    // Fenix client can send TestData rows to Fenix Testdata sync server with this service
+    rpc SendTestDataRows (MerkleTreeMessage) returns (AckNackResponse) {
+    }
+
+}
+
+// Message Holding information about the TestDataClient
+message TestDataClientInformationMessage {
+    string TestDomainGuid = 1;
+    string TestDomainName = 2;
+    string TestDataClientIpAddress = 3;
+    string TestDataClientPort = 4;
+    CurrentTestDataProtoFileVersionEnum ProtoFileVersionUsedByCLient = 5;
+}
+
+// Message holding the top MerkleTree hash
+message MerkleHashMessage {
+    string MerkleHash = 1;
+}
+
+// Message holding the complete MerkleTree for the hashes
+message MerkleTreeMessage {
+    int64 MerkleLevel = 1;
+    string MerklePath = 2;
+    string MerkleHash = 3;
+    string MerkleChildHash = 4;
+}
+
+// Message holding all headers for the testdata
+message TestDataHeaderMessage {
+    string HeaderRowHash = 1;
+    repeated TestDataHeaderItemMessage TestDataHeaderItems = 2;
+}
+
+// Message holding one Header Item
+message TestDataHeaderItemMessage {
+    string HeaderValueAsString = 2;
+}
+
+// Message holding rows with TestData
+message TestdataRowsMessages {
+    string RowHash = 1;
+    repeated TestDataRowMessage TestDataRows = 2;
+}
+
+// Message Holding one TestData row
+message TestDataRowMessage {
+    string RowHash = 1;
+    repeated TestDataItemMessage TestDataItems = 2;
+}
+
+// Message holding one TestData item
+message TestDataItemMessage {
+    string TestDataItemValueAsString = 2;
+}
+
+
+
+
