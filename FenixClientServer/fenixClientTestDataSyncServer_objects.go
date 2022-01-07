@@ -2,6 +2,7 @@ package FenixClientServer
 
 import (
 	"Fenix2_testdata_mock/common_config"
+	fenixClientTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixClientTestDataSyncServerGrpcApi/proto"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"net"
@@ -42,5 +43,5 @@ var (
 */
 // Server used for register clients Name, Ip and Por and Clients Test Enviroments and Clients Test Commandst
 type FenixClientTestDataGrpcServicesServer struct {
-	fenixClientTestDataSyncServerGrpcApi.UnimplementedFenixTestDataGrpcServicesServer
+	fenixClientTestDataSyncServerGrpcApi.UnimplementedFenixClientTestDataGrpcServicesServer
 }
