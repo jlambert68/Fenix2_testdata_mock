@@ -54,7 +54,7 @@ func BackendServer_main() {
 
 	// Register at QML Server
 	// TODO Detta ska inte göras. Denna komponent ska vara passiv
-	fenixTestDataSyncServerObject.SendMQmlServerIpAndPortForBackendServer()
+	//fenixTestDataSyncServerObject.SendMQmlServerIpAndPortForBackendServer()
 
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)

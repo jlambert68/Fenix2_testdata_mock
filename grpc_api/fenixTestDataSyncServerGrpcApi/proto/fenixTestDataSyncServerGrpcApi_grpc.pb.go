@@ -14,10 +14,10 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// TestInstructionBackendGrpcServicesClient is the client API for TestInstructionBackendGrpcServices service.
+// FenixTestDataGrpcServicesClient is the client API for FenixTestDataGrpcServices service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type TestInstructionBackendGrpcServicesClient interface {
+type FenixTestDataGrpcServicesClient interface {
 	//Fenix client can check if Fenix Testdata sync server is alive with this service
 	AreYouAlive(ctx context.Context, in *EmptyParameter, opts ...grpc.CallOption) (*AckNackResponse, error)
 	// Fenix client can register itself with the Fenix Testdata sync server
@@ -32,72 +32,72 @@ type TestInstructionBackendGrpcServicesClient interface {
 	SendTestDataRows(ctx context.Context, in *MerkleTreeMessage, opts ...grpc.CallOption) (*AckNackResponse, error)
 }
 
-type testInstructionBackendGrpcServicesClient struct {
+type fenixTestDataGrpcServicesClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTestInstructionBackendGrpcServicesClient(cc grpc.ClientConnInterface) TestInstructionBackendGrpcServicesClient {
-	return &testInstructionBackendGrpcServicesClient{cc}
+func NewFenixTestDataGrpcServicesClient(cc grpc.ClientConnInterface) FenixTestDataGrpcServicesClient {
+	return &fenixTestDataGrpcServicesClient{cc}
 }
 
-func (c *testInstructionBackendGrpcServicesClient) AreYouAlive(ctx context.Context, in *EmptyParameter, opts ...grpc.CallOption) (*AckNackResponse, error) {
+func (c *fenixTestDataGrpcServicesClient) AreYouAlive(ctx context.Context, in *EmptyParameter, opts ...grpc.CallOption) (*AckNackResponse, error) {
 	out := new(AckNackResponse)
-	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/AreYouAlive", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/AreYouAlive", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *testInstructionBackendGrpcServicesClient) RegisterTestDataClient(ctx context.Context, in *TestDataClientInformationMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
+func (c *fenixTestDataGrpcServicesClient) RegisterTestDataClient(ctx context.Context, in *TestDataClientInformationMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
 	out := new(AckNackResponse)
-	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/RegisterTestDataClient", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/RegisterTestDataClient", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *testInstructionBackendGrpcServicesClient) SendMerkleHash(ctx context.Context, in *MerkleHashMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
+func (c *fenixTestDataGrpcServicesClient) SendMerkleHash(ctx context.Context, in *MerkleHashMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
 	out := new(AckNackResponse)
-	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/SendMerkleHash", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/SendMerkleHash", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *testInstructionBackendGrpcServicesClient) SendMerkleTree(ctx context.Context, in *MerkleTreeMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
+func (c *fenixTestDataGrpcServicesClient) SendMerkleTree(ctx context.Context, in *MerkleTreeMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
 	out := new(AckNackResponse)
-	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/SendMerkleTree", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/SendMerkleTree", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *testInstructionBackendGrpcServicesClient) SendTestDataHeaders(ctx context.Context, in *TestDataHeaderMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
+func (c *fenixTestDataGrpcServicesClient) SendTestDataHeaders(ctx context.Context, in *TestDataHeaderMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
 	out := new(AckNackResponse)
-	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/SendTestDataHeaders", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/SendTestDataHeaders", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *testInstructionBackendGrpcServicesClient) SendTestDataRows(ctx context.Context, in *MerkleTreeMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
+func (c *fenixTestDataGrpcServicesClient) SendTestDataRows(ctx context.Context, in *MerkleTreeMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
 	out := new(AckNackResponse)
-	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/SendTestDataRows", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/SendTestDataRows", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TestInstructionBackendGrpcServicesServer is the server API for TestInstructionBackendGrpcServices service.
-// All implementations must embed UnimplementedTestInstructionBackendGrpcServicesServer
+// FenixTestDataGrpcServicesServer is the server API for FenixTestDataGrpcServices service.
+// All implementations must embed UnimplementedFenixTestDataGrpcServicesServer
 // for forward compatibility
-type TestInstructionBackendGrpcServicesServer interface {
+type FenixTestDataGrpcServicesServer interface {
 	//Fenix client can check if Fenix Testdata sync server is alive with this service
 	AreYouAlive(context.Context, *EmptyParameter) (*AckNackResponse, error)
 	// Fenix client can register itself with the Fenix Testdata sync server
@@ -110,183 +110,183 @@ type TestInstructionBackendGrpcServicesServer interface {
 	SendTestDataHeaders(context.Context, *TestDataHeaderMessage) (*AckNackResponse, error)
 	// Fenix client can send TestData rows to Fenix Testdata sync server with this service
 	SendTestDataRows(context.Context, *MerkleTreeMessage) (*AckNackResponse, error)
-	mustEmbedUnimplementedTestInstructionBackendGrpcServicesServer()
+	mustEmbedUnimplementedFenixTestDataGrpcServicesServer()
 }
 
-// UnimplementedTestInstructionBackendGrpcServicesServer must be embedded to have forward compatible implementations.
-type UnimplementedTestInstructionBackendGrpcServicesServer struct {
+// UnimplementedFenixTestDataGrpcServicesServer must be embedded to have forward compatible implementations.
+type UnimplementedFenixTestDataGrpcServicesServer struct {
 }
 
-func (UnimplementedTestInstructionBackendGrpcServicesServer) AreYouAlive(context.Context, *EmptyParameter) (*AckNackResponse, error) {
+func (UnimplementedFenixTestDataGrpcServicesServer) AreYouAlive(context.Context, *EmptyParameter) (*AckNackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AreYouAlive not implemented")
 }
-func (UnimplementedTestInstructionBackendGrpcServicesServer) RegisterTestDataClient(context.Context, *TestDataClientInformationMessage) (*AckNackResponse, error) {
+func (UnimplementedFenixTestDataGrpcServicesServer) RegisterTestDataClient(context.Context, *TestDataClientInformationMessage) (*AckNackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterTestDataClient not implemented")
 }
-func (UnimplementedTestInstructionBackendGrpcServicesServer) SendMerkleHash(context.Context, *MerkleHashMessage) (*AckNackResponse, error) {
+func (UnimplementedFenixTestDataGrpcServicesServer) SendMerkleHash(context.Context, *MerkleHashMessage) (*AckNackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendMerkleHash not implemented")
 }
-func (UnimplementedTestInstructionBackendGrpcServicesServer) SendMerkleTree(context.Context, *MerkleTreeMessage) (*AckNackResponse, error) {
+func (UnimplementedFenixTestDataGrpcServicesServer) SendMerkleTree(context.Context, *MerkleTreeMessage) (*AckNackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendMerkleTree not implemented")
 }
-func (UnimplementedTestInstructionBackendGrpcServicesServer) SendTestDataHeaders(context.Context, *TestDataHeaderMessage) (*AckNackResponse, error) {
+func (UnimplementedFenixTestDataGrpcServicesServer) SendTestDataHeaders(context.Context, *TestDataHeaderMessage) (*AckNackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendTestDataHeaders not implemented")
 }
-func (UnimplementedTestInstructionBackendGrpcServicesServer) SendTestDataRows(context.Context, *MerkleTreeMessage) (*AckNackResponse, error) {
+func (UnimplementedFenixTestDataGrpcServicesServer) SendTestDataRows(context.Context, *MerkleTreeMessage) (*AckNackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendTestDataRows not implemented")
 }
-func (UnimplementedTestInstructionBackendGrpcServicesServer) mustEmbedUnimplementedTestInstructionBackendGrpcServicesServer() {
+func (UnimplementedFenixTestDataGrpcServicesServer) mustEmbedUnimplementedFenixTestDataGrpcServicesServer() {
 }
 
-// UnsafeTestInstructionBackendGrpcServicesServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TestInstructionBackendGrpcServicesServer will
+// UnsafeFenixTestDataGrpcServicesServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to FenixTestDataGrpcServicesServer will
 // result in compilation errors.
-type UnsafeTestInstructionBackendGrpcServicesServer interface {
-	mustEmbedUnimplementedTestInstructionBackendGrpcServicesServer()
+type UnsafeFenixTestDataGrpcServicesServer interface {
+	mustEmbedUnimplementedFenixTestDataGrpcServicesServer()
 }
 
-func RegisterTestInstructionBackendGrpcServicesServer(s grpc.ServiceRegistrar, srv TestInstructionBackendGrpcServicesServer) {
-	s.RegisterService(&TestInstructionBackendGrpcServices_ServiceDesc, srv)
+func RegisterFenixTestDataGrpcServicesServer(s grpc.ServiceRegistrar, srv FenixTestDataGrpcServicesServer) {
+	s.RegisterService(&FenixTestDataGrpcServices_ServiceDesc, srv)
 }
 
-func _TestInstructionBackendGrpcServices_AreYouAlive_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _FenixTestDataGrpcServices_AreYouAlive_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EmptyParameter)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TestInstructionBackendGrpcServicesServer).AreYouAlive(ctx, in)
+		return srv.(FenixTestDataGrpcServicesServer).AreYouAlive(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/AreYouAlive",
+		FullMethod: "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/AreYouAlive",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TestInstructionBackendGrpcServicesServer).AreYouAlive(ctx, req.(*EmptyParameter))
+		return srv.(FenixTestDataGrpcServicesServer).AreYouAlive(ctx, req.(*EmptyParameter))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TestInstructionBackendGrpcServices_RegisterTestDataClient_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _FenixTestDataGrpcServices_RegisterTestDataClient_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TestDataClientInformationMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TestInstructionBackendGrpcServicesServer).RegisterTestDataClient(ctx, in)
+		return srv.(FenixTestDataGrpcServicesServer).RegisterTestDataClient(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/RegisterTestDataClient",
+		FullMethod: "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/RegisterTestDataClient",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TestInstructionBackendGrpcServicesServer).RegisterTestDataClient(ctx, req.(*TestDataClientInformationMessage))
+		return srv.(FenixTestDataGrpcServicesServer).RegisterTestDataClient(ctx, req.(*TestDataClientInformationMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TestInstructionBackendGrpcServices_SendMerkleHash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _FenixTestDataGrpcServices_SendMerkleHash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MerkleHashMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TestInstructionBackendGrpcServicesServer).SendMerkleHash(ctx, in)
+		return srv.(FenixTestDataGrpcServicesServer).SendMerkleHash(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/SendMerkleHash",
+		FullMethod: "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/SendMerkleHash",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TestInstructionBackendGrpcServicesServer).SendMerkleHash(ctx, req.(*MerkleHashMessage))
+		return srv.(FenixTestDataGrpcServicesServer).SendMerkleHash(ctx, req.(*MerkleHashMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TestInstructionBackendGrpcServices_SendMerkleTree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _FenixTestDataGrpcServices_SendMerkleTree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MerkleTreeMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TestInstructionBackendGrpcServicesServer).SendMerkleTree(ctx, in)
+		return srv.(FenixTestDataGrpcServicesServer).SendMerkleTree(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/SendMerkleTree",
+		FullMethod: "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/SendMerkleTree",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TestInstructionBackendGrpcServicesServer).SendMerkleTree(ctx, req.(*MerkleTreeMessage))
+		return srv.(FenixTestDataGrpcServicesServer).SendMerkleTree(ctx, req.(*MerkleTreeMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TestInstructionBackendGrpcServices_SendTestDataHeaders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _FenixTestDataGrpcServices_SendTestDataHeaders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TestDataHeaderMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TestInstructionBackendGrpcServicesServer).SendTestDataHeaders(ctx, in)
+		return srv.(FenixTestDataGrpcServicesServer).SendTestDataHeaders(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/SendTestDataHeaders",
+		FullMethod: "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/SendTestDataHeaders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TestInstructionBackendGrpcServicesServer).SendTestDataHeaders(ctx, req.(*TestDataHeaderMessage))
+		return srv.(FenixTestDataGrpcServicesServer).SendTestDataHeaders(ctx, req.(*TestDataHeaderMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TestInstructionBackendGrpcServices_SendTestDataRows_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _FenixTestDataGrpcServices_SendTestDataRows_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MerkleTreeMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TestInstructionBackendGrpcServicesServer).SendTestDataRows(ctx, in)
+		return srv.(FenixTestDataGrpcServicesServer).SendTestDataRows(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices/SendTestDataRows",
+		FullMethod: "/fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices/SendTestDataRows",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TestInstructionBackendGrpcServicesServer).SendTestDataRows(ctx, req.(*MerkleTreeMessage))
+		return srv.(FenixTestDataGrpcServicesServer).SendTestDataRows(ctx, req.(*MerkleTreeMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// TestInstructionBackendGrpcServices_ServiceDesc is the grpc.ServiceDesc for TestInstructionBackendGrpcServices service.
+// FenixTestDataGrpcServices_ServiceDesc is the grpc.ServiceDesc for FenixTestDataGrpcServices service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var TestInstructionBackendGrpcServices_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "fenixTestDataSyncServerGrpcApi.TestInstructionBackendGrpcServices",
-	HandlerType: (*TestInstructionBackendGrpcServicesServer)(nil),
+var FenixTestDataGrpcServices_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServices",
+	HandlerType: (*FenixTestDataGrpcServicesServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "AreYouAlive",
-			Handler:    _TestInstructionBackendGrpcServices_AreYouAlive_Handler,
+			Handler:    _FenixTestDataGrpcServices_AreYouAlive_Handler,
 		},
 		{
 			MethodName: "RegisterTestDataClient",
-			Handler:    _TestInstructionBackendGrpcServices_RegisterTestDataClient_Handler,
+			Handler:    _FenixTestDataGrpcServices_RegisterTestDataClient_Handler,
 		},
 		{
 			MethodName: "SendMerkleHash",
-			Handler:    _TestInstructionBackendGrpcServices_SendMerkleHash_Handler,
+			Handler:    _FenixTestDataGrpcServices_SendMerkleHash_Handler,
 		},
 		{
 			MethodName: "SendMerkleTree",
-			Handler:    _TestInstructionBackendGrpcServices_SendMerkleTree_Handler,
+			Handler:    _FenixTestDataGrpcServices_SendMerkleTree_Handler,
 		},
 		{
 			MethodName: "SendTestDataHeaders",
-			Handler:    _TestInstructionBackendGrpcServices_SendTestDataHeaders_Handler,
+			Handler:    _FenixTestDataGrpcServices_SendTestDataHeaders_Handler,
 		},
 		{
 			MethodName: "SendTestDataRows",
-			Handler:    _TestInstructionBackendGrpcServices_SendTestDataRows_Handler,
+			Handler:    _FenixTestDataGrpcServices_SendTestDataRows_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
