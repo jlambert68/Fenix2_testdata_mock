@@ -1,5 +1,6 @@
 syntax = "proto3";
 package fenixClientTestDataSyncServerGrpcApi;
+option go_package ="./proto";
 
 // Used to have client and server in sync with using the same proto file version
 // Minor changes is backwards compatible with previous version
@@ -20,7 +21,7 @@ message AckNackResponse {
 
 // Fenix Client Testdata sync server service definition.
 // ***********************
-service TestInstructionBackendGrpcServices {
+service FenixClientTestDataGrpcServices {
 
     //Fenix Server can check if Fenix Client Testdata sync server is alive with this service
     rpc AreYouAlive (EmptyParameter) returns (AckNackResponse) {

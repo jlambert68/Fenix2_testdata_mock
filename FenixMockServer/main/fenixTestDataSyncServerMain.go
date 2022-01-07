@@ -6,5 +6,5 @@ import (
 
 func main() {
 	//time.Sleep(15 * time.Second)
-	FenixMockServer.BackendServer_main()
+	FenixMockServer.FenixServerMain()
 }
