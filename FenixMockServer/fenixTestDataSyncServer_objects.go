@@ -45,3 +45,19 @@ var (
 type FenixTestDataGrpcServicesServer struct {
 	fenixTestDataSyncServerGrpcApi.UnimplementedFenixTestDataGrpcServicesServer
 }
+
+// Channels which takes incoming gRPC-messages and pass them to 'message process engine'
+// 'TestDataClientInformationMessage' from 'gRPC-RegisterTestDataClient'
+var TestDataClientInformationMessageChannel chan fenixTestDataSyncServerGrpcApi.TestDataClientInformationMessage
+
+// 'MerkleHashMessage' from 'gRPC-SendMerkleHash'
+var MerkleHashMessageChannel chan fenixTestDataSyncServerGrpcApi.MerkleHashMessage
+
+// 'MerkleTreeMessage' from 'gRPC-SendMerkleTree'
+var MerkleTreeMessageChannel chan fenixTestDataSyncServerGrpcApi.MerkleTreeMessage
+
+// 'TestDataHeaderMessage' from 'gRPC-SendTestDataHeaders'
+var TestDataHeaderMessageChannel chan fenixTestDataSyncServerGrpcApi.TestDataHeaderMessage
+
+// 'MerkleTreeMessage' from 'gRPC-SendTestDataRows'
+var MerkleTreeMessageMessageChannel chan fenixTestDataSyncServerGrpcApi.MerkleTreeMessage

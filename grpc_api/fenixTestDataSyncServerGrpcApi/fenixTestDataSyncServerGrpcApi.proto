@@ -95,8 +95,7 @@ message TestDataHeaderItemMessage {
 // Message holding rows with TestData
 message TestdataRowsMessages {
     string TestDataClientGuid = 1;
-    string RowHash = 2;
-    repeated TestDataRowMessage TestDataRows = 3;
+    repeated TestDataRowMessage TestDataRows = 2;
 }
 
 // Message Holding one TestData row

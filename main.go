@@ -27,7 +27,7 @@ func hashValues(valuesToHash []string) string {
 
 		hash := sha256.New()
 		hash.Write([]byte(hash_string))
-		sha256_hash = hex.EncodeToString(hash.Sum(nil))
+		sha256_hash = hex.EncodeToString(hash.Sum(nil))hex.EncodeToString(hash.Sum(nil))
 		hash_string = sha256_hash
 
 	}

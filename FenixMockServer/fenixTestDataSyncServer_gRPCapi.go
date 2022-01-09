@@ -1,6 +1,7 @@
 package FenixMockServer
 
 import (
+	"Fenix2_testdata_mock/common_config"
 	fenixTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixTestDataSyncServerGrpcApi/proto"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
@@ -33,6 +34,9 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleHash(ctx context.Context, me
 		"id": "27fb45fe-3266-41aa-a6af-958513977e28",
 	}).Debug("Outgoing 'SendMerkleHash'")
 
+	// Save the message
+	_ = fenixTestDataSyncServerObject.saveCurrentMerkleHashForClient(*merkleHashMessage)
+
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
 
@@ -47,6 +51,12 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleTree(ctx context.Context, me
 	defer fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 		"id": "61e2c28d-b091-442a-b7f8-d2502d9547cf",
 	}).Debug("Outgoing 'SendMerkleTree'")
+
+	// Convert the merkleTree into a DataFrame object
+	merkleTreeAsDataFrame := fenixTestDataSyncServerObject.convertgRpcMerkleTreeMessageToDataframe(*merkleTreeMessage)
+
+	// Save the Dataframe message
+	_ = fenixTestDataSyncServerObject.saveCurrentMerkleTreeForClient(merkleTreeAsDataFrame)
 
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
@@ -63,7 +73,20 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaders(ctx context.Contex
 		"id": "ca0b58a8-6d56-4392-8751-45906670e86b",
 	}).Debug("Outgoing 'SendTestDataHeaders'")
 
+	// Convert gRPC-message into other format
+	headerHash, headerItems := fenixTestDataSyncServerObject.convertgRpcHeaderMessageToStringArray(*testDataHeaderMessage)
+
+	// Validate HeaderHash
+	computedHeaderHash := common_config.HashValues(headerItems)
+	if computedHeaderHash != headerHash {
+		return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: false, Comments: "Header hash is not correct computed"}, nil
+	}
+
+	// Save the message
+	_ = fenixTestDataSyncServerObject.saveCurrentHeaderHashsForClient(headerHash)
+	_ = fenixTestDataSyncServerObject.saveCurrentHeadersForClient(headerItems)
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
+
 }
 
 // *********************************************************************
