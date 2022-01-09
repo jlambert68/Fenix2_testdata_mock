@@ -1,9 +1,8 @@
-package main
+package common_config
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"github.com/go-gota/gota/series"
 	"log"
 	"os"
@@ -13,7 +12,7 @@ import (
 	"github.com/go-gota/gota/dataframe"
 )
 
-func hashValues(valuesToHash []string) string {
+func HashValues(valuesToHash []string) string {
 
 	hash_string := ""
 	sha256_hash := ""
@@ -174,7 +173,8 @@ var merkleTreeDataFrame dataframe.DataFrame
 // Dataframe holding changed File's MerkleTree
 var changedFilesMerkleTreeDataFrame dataframe.DataFrame
 
-func loadAndProcessFile(fileToprocess string) (string, dataframe.DataFrame) {
+// Process incoming csv file and create MerkleRootHash and MerkleTree
+func LoadAndProcessFile(fileToprocess string) (string, dataframe.DataFrame) {
 
 	irisCsv, err := os.Open(fileToprocess)
 	if err != nil {
@@ -182,21 +182,11 @@ func loadAndProcessFile(fileToprocess string) (string, dataframe.DataFrame) {
 	}
 	defer irisCsv.Close()
 
-	fmt.Println(irisCsv)
-	// &{0xc000088780}
-
 	df := dataframe.ReadCSV(irisCsv,
 		dataframe.WithDelimiter(';'),
 		dataframe.HasHeader(true))
-	fmt.Println(df)
-
-	head := df.Subset([]int{0, 3})
-	fmt.Println(head)
 
 	df = df.Arrange(dataframe.Sort("TestDataId"))
-
-	head = df.Subset([]int{0, 3})
-	fmt.Println(head)
 
 	numberOfRows := df.Nrow()
 	df = df.Mutate(
@@ -212,12 +202,10 @@ func loadAndProcessFile(fileToprocess string) (string, dataframe.DataFrame) {
 		}
 
 		// Hash all values for row
-		hashedRow := hashValues(valuesToHash)
+		hashedRow := HashValues(valuesToHash)
 		df.Elem(rowCounter, number_of_columns_to_process).Set(hashedRow)
 
 	}
-
-	fmt.Println(df)
 
 	// Columns for MerkleTree DataFrame
 	merkleTreeDataFrame = dataframe.New(
@@ -226,92 +214,10 @@ func loadAndProcessFile(fileToprocess string) (string, dataframe.DataFrame) {
 		series.New([]string{}, series.String, "MerkleHash"),
 		series.New([]string{}, series.String, "MerkleChildHash"),
 	)
-	fmt.Println(merkleTreeDataFrame.Names())
 
 	merkleFilterPath := "AccountEnvironment/ClientJuristictionCountryCode/MarketSubType/MarketName/" //SecurityType/"
 
 	merkleHash := recursiveTreeCreator(0, merkleFilterPath, df, "MerkleRoot/")
 
 	return merkleHash, merkleTreeDataFrame
-}
-
-func writeDataFrameToCSV(fileName string, dataFrame dataframe.DataFrame) {
-	f, err := os.Create(fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	dataFrame.WriteCSV(f)
-}
-
-func IsNotInListFilter(arrayToCompareWith []string) func() func(el series.Element) bool {
-	isNaNFunction := func() func(el series.Element) bool {
-		return func(el series.Element) bool {
-			var notFoundInArray bool = true
-
-			for _, value := range arrayToCompareWith {
-				if value == el.String() {
-					notFoundInArray = false
-					break
-				}
-			}
-
-			return notFoundInArray
-		}
-	}
-	return isNaNFunction
-}
-
-func main() {
-
-	originalMerkleTreeHash, orignalMerkleTree := loadAndProcessFile("data/FenixRawTestdata_14rows_211216.csv")
-	changedMerkleTreeHash, changedMerkleTree := loadAndProcessFile("data/FenixRawTestdata_14rows_211216_change.csv")
-
-	fmt.Println("Original MerkleHash: ", originalMerkleTreeHash)
-	fmt.Println("Changed MerkleHash: ", changedMerkleTreeHash)
-
-	writeDataFrameToCSV("orignalMerkleTree.csv", orignalMerkleTree)
-	writeDataFrameToCSV("changedMerkleTree.csv", changedMerkleTree)
-
-	fmt.Println("Orignal merkleTreeDataFrame: ", orignalMerkleTree)
-	fmt.Println("Changed merkleTreeDataFrame: ", changedMerkleTree)
-
-	merkleDataToKeep := orignalMerkleTree.InnerJoin(changedMerkleTree, "MerkleLevel", "MerklePath", "MerklePath", "MerkleHash", "MerkleChildHash")
-	fmt.Println("merkleDataToKeep: ", merkleDataToKeep)
-	writeDataFrameToCSV("merkleDataToKeep.csv", merkleDataToKeep)
-
-	//Try to filter out rows that is missing and is not on 'highest' MerkleLevel (leaves)
-	leaveNodeLevel := merkleDataToKeep.Col("MerkleLevel").Max()
-	isNotInListFkn := IsNotInListFilter(merkleDataToKeep.Col("MerkleChildHash").Records())
-
-	MerkleTreeToRetrieve_temp := changedMerkleTree.Filter(
-		dataframe.F{
-			Colname:    "MerkleLevel",
-			Comparator: series.Eq,
-			Comparando: leaveNodeLevel})
-
-	MerkleTreeToRetrieve := MerkleTreeToRetrieve_temp.Filter(
-		dataframe.F{
-			Colname:    "MerkleChildHash",
-			Comparator: series.CompFunc,
-			Comparando: isNotInListFkn()})
-
-	writeDataFrameToCSV("MerkleTreeToRetrieve.csv", MerkleTreeToRetrieve)
-
-	MerklePathsToRetreive := MerkleTreeToRetrieve.Col("MerklePath").Records()
-
-	fmt.Println(MerklePathsToRetreive)
-	//Clean up MerklePaths to eb sent
-	for arrayPosition, merklePath := range MerklePathsToRetreive {
-		numberOfInstances := strings.Count(merklePath, "MerkleRoot/")
-		if numberOfInstances != 1 {
-			log.Fatalln("'MerkleRoot/' was not found: ", merklePath)
-		}
-		cleanedValue := merklePath[11:]
-		MerklePathsToRetreive[arrayPosition] = cleanedValue
-	}
-	fmt.Println(MerklePathsToRetreive)
-
-	//rowsToRetreiveInMerkleTree := orignalMerkleTree.InnerJoin(changedMerkleTree, "MerkleLevel", "MerklePath", "MerklePath", "MerkleHash", "MerkleChildHash")
-
 }

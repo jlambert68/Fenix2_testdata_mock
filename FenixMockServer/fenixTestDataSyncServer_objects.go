@@ -25,7 +25,7 @@ type fenixTestDataSyncServerObject_struct struct {
 var fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct
 
 // Global connection constants
-var localServerEngineLocalPort = common_config.TestInstructionBackendServer_initial_port
+var localServerEngineLocalPort = common_config.FenixClientTestDataSyncServer_initial_port
 
 var (
 	registerfenixTestDataSyncServerServer *grpc.Server
@@ -38,7 +38,7 @@ var (
 	remoteQmlServerConnection *grpc.ClientConn
 	gRpcClientForQmlServer    qml_server_grpc_api.QmlGrpcServicesClient
 
-	qmlServer_address_to_dial string = common_config.QmlServer_address + common_config.QmlServer_port
+	qmlServer_address_to_dial string = common_config.FenixTestDataSyncServer_address + common_config.FenixTestDataSyncServer_port
 )
 */
 // Server used for register clients Name, Ip and Por and Clients Test Enviroments and Clients Test Commandst

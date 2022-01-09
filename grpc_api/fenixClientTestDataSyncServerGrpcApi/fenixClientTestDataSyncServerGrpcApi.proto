@@ -6,7 +6,8 @@ option go_package ="./proto";
 // Minor changes is backwards compatible with previous version
 // Major changes changes needs to be the same for server and client
 enum CurrentTestDataProtoFileVersionEnum {
-    VERSION_1_0 = 0; // Current version
+    VERSION_0_9 = 0 [deprecated = true];
+    VERSION_1_0 = 1; // Current version
 }
 
 // Parameter used for Empty inputs
@@ -43,7 +44,12 @@ service FenixClientTestDataGrpcServices {
     rpc SendTestDataHeaders (EmptyParameter) returns (AckNackResponse) {
     }
 
-    // Fenix Server asks Fenix client to  send TestData rows to Fenix Testdata sync server with this service
-    rpc SendTestDataRows (EmptyParameter) returns (AckNackResponse) {
+    // Fenix Server asks Fenix client to  send TestData rows, based on list of MerklePaths, to Fenix Testdata sync server with this service
+    rpc SendTestDataRows (MerklePathsMessage) returns (AckNackResponse) {
     }
+}
+
+// List of MerklePath's to be sent från client to FenixTestDataSyncServer
+message MerklePathsMessage {
+    repeated string MerklePath = 1;
 }

@@ -6,7 +6,8 @@ option go_package ="./proto";
 // Minor changes is backwards compatible with previous version
 // Major changes changes needs to be the same for server and client
 enum CurrentTestDataProtoFileVersionEnum {
-    VERSION_1_0 = 0; // Current version
+    VERSION_0_9 = 0 [deprecated = true];
+    VERSION_1_0 = 1; // Current version
 }
 
 // Parameter used for Empty inputs
@@ -51,20 +52,28 @@ service FenixTestDataGrpcServices {
 
 // Message Holding information about the TestDataClient
 message TestDataClientInformationMessage {
-    string TestDomainGuid = 1;
-    string TestDomainName = 2;
-    string TestDataClientIpAddress = 3;
-    string TestDataClientPort = 4;
-    CurrentTestDataProtoFileVersionEnum ProtoFileVersionUsedByCLient = 5;
+    string TestDataClientGuid = 1;
+    string TestDomainGuid = 2;
+    string TestDomainName = 3;
+    string TestDataClientIpAddress = 4;
+    string TestDataClientPort = 5;
+    CurrentTestDataProtoFileVersionEnum ProtoFileVersionUsedByCLient = 6;
 }
 
 // Message holding the top MerkleTree hash
 message MerkleHashMessage {
-    string MerkleHash = 1;
+    string TestDataClientGuid = 1;
+    string MerkleHash = 2;
 }
 
 // Message holding the complete MerkleTree for the hashes
 message MerkleTreeMessage {
+    string TestDataClientGuid = 1;
+    repeated MerkleTreeNodeMessage MerkleTreeNodes = 2;
+}
+
+// Message holding one node of the MerkleTree
+message MerkleTreeNodeMessage {
     int64 MerkleLevel = 1;
     string MerklePath = 2;
     string MerkleHash = 3;
@@ -73,8 +82,9 @@ message MerkleTreeMessage {
 
 // Message holding all headers for the testdata
 message TestDataHeaderMessage {
-    string HeaderRowHash = 1;
-    repeated TestDataHeaderItemMessage TestDataHeaderItems = 2;
+    string TestDataClientGuid = 1;
+    string HeaderRowHash = 2;
+    repeated TestDataHeaderItemMessage TestDataHeaderItems = 3;
 }
 
 // Message holding one Header Item
@@ -84,8 +94,9 @@ message TestDataHeaderItemMessage {
 
 // Message holding rows with TestData
 message TestdataRowsMessages {
-    string RowHash = 1;
-    repeated TestDataRowMessage TestDataRows = 2;
+    string TestDataClientGuid = 1;
+    string RowHash = 2;
+    repeated TestDataRowMessage TestDataRows = 3;
 }
 
 // Message Holding one TestData row

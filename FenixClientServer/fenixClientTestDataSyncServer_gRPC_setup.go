@@ -37,7 +37,7 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 				"localServerEngineLocalPort: ": localServerEngineLocalPort,
 			}).Info("Success in listening on port:")
 			fenixClientTestDataSyncServerObject.port = strconv.Itoa(localServerEngineLocalPort)
-			fenixClientTestDataSyncServerObject.ip = common_config.TestInstructionBackendServer_address
+			fenixClientTestDataSyncServerObject.ip = common_config.FenixClientTestDataSyncServer_address
 
 			break
 		}

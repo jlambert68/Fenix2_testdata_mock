@@ -28,8 +28,8 @@ type FenixClientTestDataGrpcServicesClient interface {
 	SendMerkleTree(ctx context.Context, in *EmptyParameter, opts ...grpc.CallOption) (*AckNackResponse, error)
 	// Fenix Server asks Fenix client to send TestDataHeaders to Fenix Testdata sync server with this service
 	SendTestDataHeaders(ctx context.Context, in *EmptyParameter, opts ...grpc.CallOption) (*AckNackResponse, error)
-	// Fenix Server asks Fenix client to  send TestData rows to Fenix Testdata sync server with this service
-	SendTestDataRows(ctx context.Context, in *EmptyParameter, opts ...grpc.CallOption) (*AckNackResponse, error)
+	// Fenix Server asks Fenix client to  send TestData rows, based on list of MerklePaths, to Fenix Testdata sync server with this service
+	SendTestDataRows(ctx context.Context, in *MerklePathsMessage, opts ...grpc.CallOption) (*AckNackResponse, error)
 }
 
 type fenixClientTestDataGrpcServicesClient struct {
@@ -85,7 +85,7 @@ func (c *fenixClientTestDataGrpcServicesClient) SendTestDataHeaders(ctx context.
 	return out, nil
 }
 
-func (c *fenixClientTestDataGrpcServicesClient) SendTestDataRows(ctx context.Context, in *EmptyParameter, opts ...grpc.CallOption) (*AckNackResponse, error) {
+func (c *fenixClientTestDataGrpcServicesClient) SendTestDataRows(ctx context.Context, in *MerklePathsMessage, opts ...grpc.CallOption) (*AckNackResponse, error) {
 	out := new(AckNackResponse)
 	err := c.cc.Invoke(ctx, "/fenixClientTestDataSyncServerGrpcApi.FenixClientTestDataGrpcServices/SendTestDataRows", in, out, opts...)
 	if err != nil {
@@ -108,8 +108,8 @@ type FenixClientTestDataGrpcServicesServer interface {
 	SendMerkleTree(context.Context, *EmptyParameter) (*AckNackResponse, error)
 	// Fenix Server asks Fenix client to send TestDataHeaders to Fenix Testdata sync server with this service
 	SendTestDataHeaders(context.Context, *EmptyParameter) (*AckNackResponse, error)
-	// Fenix Server asks Fenix client to  send TestData rows to Fenix Testdata sync server with this service
-	SendTestDataRows(context.Context, *EmptyParameter) (*AckNackResponse, error)
+	// Fenix Server asks Fenix client to  send TestData rows, based on list of MerklePaths, to Fenix Testdata sync server with this service
+	SendTestDataRows(context.Context, *MerklePathsMessage) (*AckNackResponse, error)
 	mustEmbedUnimplementedFenixClientTestDataGrpcServicesServer()
 }
 
@@ -132,7 +132,7 @@ func (UnimplementedFenixClientTestDataGrpcServicesServer) SendMerkleTree(context
 func (UnimplementedFenixClientTestDataGrpcServicesServer) SendTestDataHeaders(context.Context, *EmptyParameter) (*AckNackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendTestDataHeaders not implemented")
 }
-func (UnimplementedFenixClientTestDataGrpcServicesServer) SendTestDataRows(context.Context, *EmptyParameter) (*AckNackResponse, error) {
+func (UnimplementedFenixClientTestDataGrpcServicesServer) SendTestDataRows(context.Context, *MerklePathsMessage) (*AckNackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendTestDataRows not implemented")
 }
 func (UnimplementedFenixClientTestDataGrpcServicesServer) mustEmbedUnimplementedFenixClientTestDataGrpcServicesServer() {
@@ -240,7 +240,7 @@ func _FenixClientTestDataGrpcServices_SendTestDataHeaders_Handler(srv interface{
 }
 
 func _FenixClientTestDataGrpcServices_SendTestDataRows_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmptyParameter)
+	in := new(MerklePathsMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -252,7 +252,7 @@ func _FenixClientTestDataGrpcServices_SendTestDataRows_Handler(srv interface{}, 
 		FullMethod: "/fenixClientTestDataSyncServerGrpcApi.FenixClientTestDataGrpcServices/SendTestDataRows",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FenixClientTestDataGrpcServicesServer).SendTestDataRows(ctx, req.(*EmptyParameter))
+		return srv.(FenixClientTestDataGrpcServicesServer).SendTestDataRows(ctx, req.(*MerklePathsMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
