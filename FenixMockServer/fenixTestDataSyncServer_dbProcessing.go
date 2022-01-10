@@ -132,9 +132,9 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) getCu
 }
 
 // Save current TestData-HeaderHash for client
-func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) saveCurrentHeaderHashsForClient(currentHeaderHashsForClient string) bool {
+func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) saveCurrentHeaderHashsForClient(testDataClientGuid string, currentHeaderHashsForClient string) bool {
 
-	dbData.clientData.headerHash = currentHeaderHashsForClientcurrentHeaderHashsForClient
+	dbData.clientData.headerHash = currentHeaderHashsForClient
 
 	return true
 }
@@ -150,7 +150,7 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) getCu
 }
 
 // Save currentTestData-Headers for client
-func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) saveCurrentHeadersForClient(testDataHeaderItems []string) bool {
+func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) saveCurrentHeadersForClient(testDataClientGuid string, testDataHeaderItems []string) bool {
 
 	dbData.clientData.headers = testDataHeaderItems
 
@@ -167,12 +167,28 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) getCu
 	return currentHeaderHashsForServer
 }
 
+// Save current TestData-HeaderHash for Server
+func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) saveCurrentHeaderHashForServer(currentHeaderHashForServer string) bool {
+
+	dbData.serverData.headerHash = currentHeaderHashForServer
+
+	return true
+}
+
 // Retrieve current TestData-Header for Server
-func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) getCurrentHeadersForServer(testDataClientGuid string) []string {
+func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) getCurrentHeadersForServer() []string {
 
 	var currentHeadersForServer []string
 
 	currentHeadersForServer = dbData.serverData.headers
 
 	return currentHeadersForServer
+}
+
+// Retrieve current TestData-Header for Server
+func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) saveCurrentHeadersForServer(currentHeadersForServer []string) bool {
+
+	dbData.serverData.headers = currentHeadersForServer
+
+	return true
 }
