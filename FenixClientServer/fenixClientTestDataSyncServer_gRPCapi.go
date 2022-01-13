@@ -33,6 +33,9 @@ func (s *FenixClientTestDataGrpcServicesServer) SendMerkleHash(ctx context.Conte
 		"id": "27fb45fe-3266-41aa-a6af-958513977e28",
 	}).Debug("Outgoing 'SendMerkleHash'")
 
+	// Send MerkleHash to Fenix after sending return message back to caller
+	defer fenixClientTestDataSyncServerObject.SendMerkleHash()
+
 	return &fenixClientTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
 
@@ -47,6 +50,9 @@ func (s *FenixClientTestDataGrpcServicesServer) SendMerkleTree(ctx context.Conte
 	defer fenixClientTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 		"id": "61e2c28d-b091-442a-b7f8-d2502d9547cf",
 	}).Debug("Outgoing 'SendMerkleTree'")
+
+	// Send MerkleTree to Fenix after sending return message back to caller
+	defer fenixClientTestDataSyncServerObject.SendMerkleTree()
 
 	return &fenixClientTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
@@ -63,6 +69,9 @@ func (s *FenixClientTestDataGrpcServicesServer) SendTestDataHeaders(ctx context.
 		"id": "ca0b58a8-6d56-4392-8751-45906670e86b",
 	}).Debug("Outgoing 'SendTestDataHeaders'")
 
+	// Send TestDataHeaders to Fenix after sending return message back to caller
+	defer fenixClientTestDataSyncServerObject.SendTestDataHeaders()
+
 	return &fenixClientTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
 
@@ -78,6 +87,9 @@ func (s *FenixClientTestDataGrpcServicesServer) SendTestDataRows(ctx context.Con
 		"id": "755e8b4f-f184-4277-ad41-e041714c2ca8",
 	}).Debug("Outgoing 'SendTestDataRows'")
 
+	// Send TestDataRows to Fenix after sending return message back to caller
+	defer fenixClientTestDataSyncServerObject.SendTestDataRows()
+
 	return &fenixClientTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
 
@@ -91,6 +103,9 @@ func (s *FenixClientTestDataGrpcServicesServer) RegisterTestDataClient(ctx conte
 	defer fenixClientTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 		"id": "316dcd7e-2229-4a82-b15b-0f808c2dd8aa",
 	}).Debug("Outgoing 'RegisterTestDataClient'")
+
+	// Send Client registration to Fenix after sending return message back to caller
+	defer fenixClientTestDataSyncServerObject.SendMerkleHash()
 
 	return &fenixClientTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }

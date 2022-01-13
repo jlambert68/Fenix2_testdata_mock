@@ -316,6 +316,12 @@ func CalculateMerkleHashFromMerkleTree(merkleTree dataframe.DataFrame) (merkleHa
 
 	// Add column for storing current node path
 	numberOfRows := merkleTreeLeafNodes.Nrow()
+
+	// If there are no leaf nodes then it's a problem
+	if numberOfRows == 0 {
+		return "-1"
+	}
+
 	merkleTreeLeafNodes = merkleTreeLeafNodes.Mutate(
 		series.New(make([]string, numberOfRows), series.String, "CurrentMerklePathNode"))
 

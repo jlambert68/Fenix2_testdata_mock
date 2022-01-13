@@ -2,13 +2,13 @@ package FenixClientServer
 
 import (
 	"Fenix2_testdata_mock/common_config"
-	fenixClientTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixClientTestDataSyncServerGrpcApi/proto"
 	fenixTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixTestDataSyncServerGrpcApi/proto"
 	"github.com/go-gota/gota/dataframe"
-	"github.com/go-gota/gota/series"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"log"
+	"os"
 )
 
 // Set upp connection and Dial to FenixTestDataSyncServer
@@ -58,7 +58,7 @@ func getCurrentTestDataMerkleTree() fenixTestDataSyncServerGrpcApi.MerkleTreeMes
 	return merkleTreeMessage
 }
 
-func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) RegisterTestDataClient() fenixTestDataSyncServerGrpcApi.AckNackResponse {
+func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) RegisterTestDataClient() {
 
 	// Set up variables to be sent to FenixTestDataSyncServer
 	TestDataClientInformationMessage := fenixTestDataSyncServerGrpcApi.TestDataClientInformationMessage{
@@ -89,10 +89,10 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 			}).Error("Problem to do gRPC-call to FenixTestDataSyncServer for 'RegisterTestDataClient'")
 		}
 	}
-	return *returnMessage
+
 }
 
-func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendMerkleHash() fenixTestDataSyncServerGrpcApi.AckNackResponse {
+func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendMerkleHash() {
 
 	merkleRootHash, _ := common_config.LoadAndProcessFile("data/FenixRawTestdata_14rows_211216.csv")
 
@@ -120,10 +120,10 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 			}).Error("Problem to do gRPC-call to FenixTestDataSyncServer for 'SendMerkleHash'")
 		}
 	}
-	return *returnMessage
+
 }
 
-func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendMerkleTree() fenixTestDataSyncServerGrpcApi.AckNackResponse {
+func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendMerkleTree() {
 
 	var merkleTreeNodeMessages []*fenixTestDataSyncServerGrpcApi.MerkleTreeNodeMessage
 
@@ -164,10 +164,10 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 			}).Error("Problem to do gRPC-call to FenixTestDataSyncServer for 'SendMerkleTree'")
 		}
 	}
-	return *returnMessage
+
 }
 
-func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendTestDataHeaders() fenixTestDataSyncServerGrpcApi.AckNackResponse {
+func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendTestDataHeaders() {
 
 	var testDataHeaderItemsMessage []*fenixTestDataSyncServerGrpcApi.TestDataHeaderItemMessage
 	_, merkleTree := common_config.LoadAndProcessFile("data/FenixRawTestdata_14rows_211216.csv")
@@ -210,41 +210,59 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 			}).Error("Problem to do gRPC-call to FenixTestDataSyncServer for 'SendTestDataHeaders'")
 		}
 	}
-	return *returnMessage
+
 }
 
-func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendTestDataRows(merklePathsMessage *fenixClientTestDataSyncServerGrpcApi.MerklePathsMessage) fenixTestDataSyncServerGrpcApi.AckNackResponse {
+func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendTestDataRows() {
 
-	var merkleTreeNodeMessages []*fenixTestDataSyncServerGrpcApi.MerkleTreeNodeMessage
+	var testdataRowsMessages *fenixTestDataSyncServerGrpcApi.TestdataRowsMessages
+	var testdataRows []*fenixTestDataSyncServerGrpcApi.TestDataRowMessage
+	var testDataRowMessage *fenixTestDataSyncServerGrpcApi.TestDataRowMessage
+	var testdataItems []*fenixTestDataSyncServerGrpcApi.TestDataItemMessage
+	var testdataItemMessage *fenixTestDataSyncServerGrpcApi.TestDataItemMessage
+	var testDataItemValueAsString string
 
-	_, merkleTree := common_config.LoadAndProcessFile("data/FenixRawTestdata_14rows_211216.csv")
-
-	// Filter out only rows with correct MerklePath
-	MerkleTreeRowsToSendToTestDataServer := merkleTree.Filter(
-		dataframe.F{
-			Colname:    "MerklePath",
-			Comparator: series.In,
-			Comparando: merklePathsMessage.MerklePath})
-
-	// Create data to be sent to TestDataSyncServer
-	merkleTreeNRows := MerkleTreeRowsToSendToTestDataServer.Nrow()
-	for rowCounter := 0; rowCounter < merkleTreeNRows; rowCounter++ {
-		merkleLevel, _ := MerkleTreeRowsToSendToTestDataServer.Elem(rowCounter, 0).Int()
-		merkleTreeNodeMessage := &fenixTestDataSyncServerGrpcApi.MerkleTreeNodeMessage{
-			MerkleLevel:     int64(merkleLevel),
-			MerklePath:      MerkleTreeRowsToSendToTestDataServer.Elem(rowCounter, 1).String(),
-			MerkleHash:      MerkleTreeRowsToSendToTestDataServer.Elem(rowCounter, 2).String(),
-			MerkleChildHash: MerkleTreeRowsToSendToTestDataServer.Elem(rowCounter, 3).String(),
-		}
-		merkleTreeNodeMessages = append(merkleTreeNodeMessages, merkleTreeNodeMessage)
+	// Load Testdata file
+	irisCsv, err := os.Open("data/FenixRawTestdata_14rows_211216.csv")
+	if err != nil {
+		log.Fatal(err)
 	}
-	merkleTreeMessage := &fenixTestDataSyncServerGrpcApi.MerkleTreeMessage{
+	defer irisCsv.Close()
+
+	df := dataframe.ReadCSV(irisCsv,
+		dataframe.WithDelimiter(';'),
+		dataframe.HasHeader(true))
+
+	number_of_columns_to_process := df.Ncol() - 1 // Don't process Hash column
+	numberOfRows := df.Nrow()
+	for rowCounter := 0; rowCounter < numberOfRows; rowCounter++ {
+		var valuesToHash []string
+		for columnCounter := 0; columnCounter < number_of_columns_to_process; columnCounter++ {
+			// add values for one row
+			testDataItemValueAsString = df.Elem(rowCounter, columnCounter).String()
+			testdataItemMessage = &fenixTestDataSyncServerGrpcApi.TestDataItemMessage{
+				TestDataItemValueAsString: testDataItemValueAsString,
+			}
+			testdataItems = append(testdataItems, testdataItemMessage)
+		}
+
+		// Create one row and add it to array
+		testDataRowMessage = &fenixTestDataSyncServerGrpcApi.TestDataRowMessage{
+			RowHash:       "xxxxxx",
+			TestDataItems: testdataItems,
+		}
+		testdataRows = append(testdataRows, testDataRowMessage)
+
+	}
+
+	testdataRowsMessages = &fenixTestDataSyncServerGrpcApi.TestdataRowsMessages{
 		TestDataClientGuid: common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
-		MerkleTreeNodes:    merkleTreeNodeMessages}
+		TestDataRows:       testdataRows,
+	}
 
 	// Do gRPC-call
 	ctx := context.Background()
-	returnMessage, err := fenixTestDataSyncServerClient.SendTestDataRows(ctx, merkleTreeMessage)
+	returnMessage, err := fenixTestDataSyncServerClient.SendTestDataRows(ctx, testdataRowsMessages)
 
 	// Shouldn't happen
 	if err != nil {
@@ -261,5 +279,5 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 			}).Error("Problem to do gRPC-call to FenixTestDataSyncServer for 'SendTestDataRows'")
 		}
 	}
-	return *returnMessage
+
 }
