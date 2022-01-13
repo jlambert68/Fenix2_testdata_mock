@@ -56,8 +56,15 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleTree(ctx context.Context, me
 	merkleTreeAsDataFrame := fenixTestDataSyncServerObject.convertgRpcMerkleTreeMessageToDataframe(*merkleTreeMessage)
 
 	// Verify MerkleTree
+	clientsMerkleRootHash := common_config.ExtractMerkleRootHashFromMerkleTree(merkleTreeAsDataFrame)
+	recalculatedMerkleRootHash := common_config.CalculateMerkleHashFromMerkleTree(merkleTreeAsDataFrame)
 
-	// Save the Dataframe message
+	// Something is wrong with clients hash computation
+	if clientsMerkleRootHash != recalculatedMerkleRootHash {
+		return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: false, Comments: "There is something wrong with Hash computation. Expected: '" + recalculatedMerkleRootHash + "' as MerkleRoot based on MerkleTree-nodes"}, nil
+	}
+
+	// Save the MerkleTree Dataframe message
 	_ = fenixTestDataSyncServerObject.saveCurrentMerkleTreeForClient(merkleTreeMessage.TestDataClientGuid, merkleTreeAsDataFrame)
 
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
@@ -81,7 +88,7 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaders(ctx context.Contex
 	// Validate HeaderHash
 	computedHeaderHash := common_config.HashValues(headerItems)
 	if computedHeaderHash != headerHash {
-		return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: false, Comments: "Header hash is not correct computed"}, nil
+		return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: false, Comments: "Header hash is not correct computed. Expected '" + computedHeaderHash + "' as HeaderHash"}, nil
 	}
 
 	// Save the message

@@ -3,7 +3,6 @@ package common_config
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"github.com/go-gota/gota/series"
 	"log"
 	"os"
@@ -299,11 +298,7 @@ func calculateMerkleHashFromMerkleTreeLeafNodes(merkleLevel int, merkleTreeLeafN
 
 	// Hash the hashes into parent nodes hash value
 	merkleHash = HashValues(valuesToHash)
-	if merkleHash == "5cf542de7f9355b2a1db6ff4de59cc444a79e1e1892841b0f8dfa2a9620917d6" {
-		fmt.Println("Debug")
-	}
 
-	fmt.Println(merkleHash)
 	return merkleHash
 
 }
@@ -327,4 +322,30 @@ func CalculateMerkleHashFromMerkleTree(merkleTree dataframe.DataFrame) (merkleHa
 	merkleHash = calculateMerkleHashFromMerkleTreeLeafNodes(0, merkleTreeLeafNodes, int(leaveNodeLevel))
 
 	return merkleHash
+}
+
+//TODO add logging and error handling for each function...
+
+// Retrieve MerkleRootHashFromMerkleTree
+func ExtractMerkleRootHashFromMerkleTree(merkleTree dataframe.DataFrame) (merkleRootHash string) {
+
+	// Filter out the MerkleRoot node
+	leaveNodeLevel := merkleTree.Col("MerkleLevel").Min()
+	merkleTreeRoot := merkleTree.Filter(
+		dataframe.F{
+			Colname:    "MerkleLevel",
+			Comparator: series.Eq,
+			Comparando: int(leaveNodeLevel)})
+
+	// Extract MerkleRootHash
+	merkleRootHashArray := uniqueGotaSeriesAsStringArray(merkleTreeRoot.Col("MerkleHash"))
+
+	// The result should be just one line
+	if len(merkleRootHashArray) != 0 {
+		merkleRootHash = "666"
+	} else {
+		merkleRootHash = merkleRootHashArray[0]
+	}
+
+	return merkleRootHash
 }
