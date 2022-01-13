@@ -55,8 +55,10 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleTree(ctx context.Context, me
 	// Convert the merkleTree into a DataFrame object
 	merkleTreeAsDataFrame := fenixTestDataSyncServerObject.convertgRpcMerkleTreeMessageToDataframe(*merkleTreeMessage)
 
+	// Verify MerkleTree
+
 	// Save the Dataframe message
-	_ = fenixTestDataSyncServerObject.saveCurrentMerkleTreeForClient(merkleTreeAsDataFrame)
+	_ = fenixTestDataSyncServerObject.saveCurrentMerkleTreeForClient(merkleTreeMessage.TestDataClientGuid, merkleTreeAsDataFrame)
 
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
@@ -73,7 +75,7 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaders(ctx context.Contex
 		"id": "ca0b58a8-6d56-4392-8751-45906670e86b",
 	}).Debug("Outgoing 'SendTestDataHeaders'")
 
-	// Convert gRPC-message into other format
+	// Convert gRPC-message into other 'format'
 	headerHash, headerItems := fenixTestDataSyncServerObject.convertgRpcHeaderMessageToStringArray(*testDataHeaderMessage)
 
 	// Validate HeaderHash
@@ -83,8 +85,9 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaders(ctx context.Contex
 	}
 
 	// Save the message
-	_ = fenixTestDataSyncServerObject.saveCurrentHeaderHashsForClient(headerHash)
-	_ = fenixTestDataSyncServerObject.saveCurrentHeadersForClient(headerItems)
+	_ = fenixTestDataSyncServerObject.saveCurrentHeaderHashsForClient(testDataHeaderMessage.TestDataClientGuid, headerHash)
+	_ = fenixTestDataSyncServerObject.saveCurrentHeadersForClient(testDataHeaderMessage.TestDataClientGuid, headerItems)
+
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 
 }

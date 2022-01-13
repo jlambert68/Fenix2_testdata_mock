@@ -27,7 +27,8 @@ func hashValues(valuesToHash []string) string {
 
 		hash := sha256.New()
 		hash.Write([]byte(hash_string))
-		sha256_hash = hex.EncodeToString(hash.Sum(nil))hex.EncodeToString(hash.Sum(nil))
+		sha256_hash = hex.EncodeToString(hash.Sum(nil))
+		hex.EncodeToString(hash.Sum(nil))
 		hash_string = sha256_hash
 
 	}
@@ -262,12 +263,120 @@ func IsNotInListFilter(arrayToCompareWith []string) func() func(el series.Elemen
 	return isNaNFunction
 }
 
+// Calculate MerkleHash from leaf nodes in MerkleTree
+func calculateMerkleHashFromMerkleTreeLeafNodes(merkleLevel int, merkleTreeLeafNodes dataframe.DataFrame, maxMerkleLevel int) (merkleHash string) {
+
+	merkleLevel = merkleLevel + 1
+
+	// If we are at a single leaf node then return its Hash value
+	if merkleLevel > maxMerkleLevel { // merkleTreeLeafNodes.Nrow() == 1 {
+		merkleHash = uniqueGotaSeriesAsStringArray(merkleTreeLeafNodes.Col("MerkleHash"))[0]
+
+		return merkleHash
+	}
+
+	// Extract current node in merklePathLabel and store
+	merkleTreeLeafNodes = merkleTreeLeafNodes.Arrange(dataframe.Sort("MerklePath"))
+
+	numberOfRows := merkleTreeLeafNodes.Nrow()
+	merklePathNodeColumn := merkleTreeLeafNodes.Ncol() - 1 // CurrentMerklePathNode
+	merklePathColumn := 1
+
+	for rowCounter := 0; rowCounter < numberOfRows; rowCounter++ {
+		merklePath := merkleTreeLeafNodes.Elem(rowCounter, merklePathColumn).String()
+
+		startPosition := 0
+		endPosition := strings.Index(merklePath, "/")
+		merklePathLabel := merklePath[startPosition:endPosition]
+
+		// Store the extracted merklePathLabel
+		merkleTreeLeafNodes.Elem(rowCounter, merklePathNodeColumn).Set(merklePathLabel)
+
+		// Create new MerklePath for next node level
+		merklePath = merklePath[endPosition+1:]
+
+		// Store new MerklePath as next node level
+		merkleTreeLeafNodes.Elem(rowCounter, merklePathColumn).Set(merklePath)
+	}
+
+	// Get Unique values for merklePathLabel
+	uniqueValuesForSpecifiedColumn := uniqueGotaSeriesAsStringArray(merkleTreeLeafNodes.Col("CurrentMerklePathNode"))
+
+	valuesToHash := []string{}
+
+	var localMerkleHash string
+	// Loop over all unique values in column 'CurrentMerklePathNode'
+	for _, uniqueValue := range uniqueValuesForSpecifiedColumn {
+		newFilteredDataFrame := merkleTreeLeafNodes.Filter(
+			dataframe.F{
+				Colname:    "CurrentMerklePathNode",
+				Comparator: series.Eq,
+				Comparando: uniqueValue,
+			})
+
+		// Recursive call to get next level, if there is one
+		if newFilteredDataFrame.Nrow() > 0 {
+			localMerkleHash = calculateMerkleHashFromMerkleTreeLeafNodes(merkleLevel, newFilteredDataFrame, maxMerkleLevel)
+		} else {
+
+			merkleHash = uniqueGotaSeriesAsStringArray(merkleTreeLeafNodes.Col("MerkleHash"))[0]
+
+			return merkleHash
+		}
+
+		// Check if we come all the way up to MerkleRoot again. Then return current MerkleRootHash
+		if uniqueValue == "MerkleRoot" {
+			return localMerkleHash
+		}
+
+		// Append returned hash to list of hashes
+		if len(localMerkleHash) != 0 {
+			valuesToHash = append(valuesToHash, localMerkleHash)
+		} else {
+			log.Fatalln("We are at the end node - **** Should never happened ****")
+		}
+	}
+
+	// Hash the hashes into parent nodes hash value
+	merkleHash = hashValues(valuesToHash)
+	if merkleHash == "5cf542de7f9355b2a1db6ff4de59cc444a79e1e1892841b0f8dfa2a9620917d6" {
+		fmt.Println("Debug")
+	}
+
+	fmt.Println(merkleHash)
+	return merkleHash
+
+}
+
+// CalculateMerkleHashFromMerkleTree Calculate MerkleHash from leaf nodes in MerkleTree
+func CalculateMerkleHashFromMerkleTree(merkleTree dataframe.DataFrame) (merkleHash string) {
+
+	// Filter out the leaf nodes
+	leaveNodeLevel := merkleTree.Col("MerkleLevel").Max()
+	merkleTreeLeafNodes := merkleTree.Filter(
+		dataframe.F{
+			Colname:    "MerkleLevel",
+			Comparator: series.Eq,
+			Comparando: int(leaveNodeLevel)})
+
+	// Add column for storing current node path
+	numberOfRows := merkleTreeLeafNodes.Nrow()
+	merkleTreeLeafNodes = merkleTreeLeafNodes.Mutate(
+		series.New(make([]string, numberOfRows), series.String, "CurrentMerklePathNode"))
+
+	merkleHash = calculateMerkleHashFromMerkleTreeLeafNodes(0, merkleTreeLeafNodes, int(leaveNodeLevel))
+
+	return merkleHash
+}
+
 func main() {
 
 	originalMerkleTreeHash, orignalMerkleTree := loadAndProcessFile("data/FenixRawTestdata_14rows_211216.csv")
 	changedMerkleTreeHash, changedMerkleTree := loadAndProcessFile("data/FenixRawTestdata_14rows_211216_change.csv")
+	recreatedMerkleHash := CalculateMerkleHashFromMerkleTree(orignalMerkleTree)
 
 	fmt.Println("Original MerkleHash: ", originalMerkleTreeHash)
+	fmt.Println("Recreated MerkleHash from MerkleTree leaf nodes: ", recreatedMerkleHash)
 	fmt.Println("Changed MerkleHash: ", changedMerkleTreeHash)
 
 	writeDataFrameToCSV("orignalMerkleTree.csv", orignalMerkleTree)
@@ -301,7 +410,7 @@ func main() {
 	MerklePathsToRetreive := MerkleTreeToRetrieve.Col("MerklePath").Records()
 
 	fmt.Println(MerklePathsToRetreive)
-	//Clean up MerklePaths to eb sent
+	//Clean up MerklePaths to be sent
 	for arrayPosition, merklePath := range MerklePathsToRetreive {
 		numberOfInstances := strings.Count(merklePath, "MerkleRoot/")
 		if numberOfInstances != 1 {

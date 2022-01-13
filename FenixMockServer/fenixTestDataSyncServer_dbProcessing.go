@@ -86,7 +86,7 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) getCu
 }
 
 // Save current TestData-MerkleTree for client
-func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) saveCurrentMerkleTreeForClient(merkleTreeDataFrameMessage dataframe.DataFrame) bool {
+func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) saveCurrentMerkleTreeForClient(testDataClientGuid string, merkleTreeDataFrameMessage dataframe.DataFrame) bool {
 
 	dbData.clientData.merkleTree = merkleTreeDataFrameMessage
 
