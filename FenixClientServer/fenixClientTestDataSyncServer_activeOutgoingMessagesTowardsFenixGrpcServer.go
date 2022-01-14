@@ -218,8 +218,8 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 	var testdataRowsMessages *fenixTestDataSyncServerGrpcApi.TestdataRowsMessages
 	var testdataRows []*fenixTestDataSyncServerGrpcApi.TestDataRowMessage
 	var testDataRowMessage *fenixTestDataSyncServerGrpcApi.TestDataRowMessage
-	var testdataItems []*fenixTestDataSyncServerGrpcApi.TestDataItemMessage
 	var testdataItemMessage *fenixTestDataSyncServerGrpcApi.TestDataItemMessage
+
 	var testDataItemValueAsString string
 
 	// Load Testdata file
@@ -233,10 +233,13 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 		dataframe.WithDelimiter(';'),
 		dataframe.HasHeader(true))
 
-	number_of_columns_to_process := df.Ncol() - 1 // Don't process Hash column
+	number_of_columns_to_process := df.Ncol()
 	numberOfRows := df.Nrow()
 	for rowCounter := 0; rowCounter < numberOfRows; rowCounter++ {
+
 		var valuesToHash []string
+		var testdataItems []*fenixTestDataSyncServerGrpcApi.TestDataItemMessage
+
 		for columnCounter := 0; columnCounter < number_of_columns_to_process; columnCounter++ {
 			// add values for one row
 			testDataItemValueAsString = df.Elem(rowCounter, columnCounter).String()
@@ -244,17 +247,22 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 				TestDataItemValueAsString: testDataItemValueAsString,
 			}
 			testdataItems = append(testdataItems, testdataItemMessage)
+			valuesToHash = append(valuesToHash, testDataItemValueAsString)
 		}
 
-		// Create one row and add it to array
+		// Hash all values for row
+		hashedRow := common_config.HashValues(valuesToHash)
+
+		// Create one row object and add it to array
 		testDataRowMessage = &fenixTestDataSyncServerGrpcApi.TestDataRowMessage{
-			RowHash:       "xxxxxx",
+			RowHash:       hashedRow,
 			TestDataItems: testdataItems,
 		}
 		testdataRows = append(testdataRows, testDataRowMessage)
 
 	}
 
+	// Create the message with all test data to be sent to Fenix
 	testdataRowsMessages = &fenixTestDataSyncServerGrpcApi.TestdataRowsMessages{
 		TestDataClientGuid: common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
 		TestDataRows:       testdataRows,

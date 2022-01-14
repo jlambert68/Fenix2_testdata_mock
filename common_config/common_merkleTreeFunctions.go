@@ -332,7 +332,7 @@ func CalculateMerkleHashFromMerkleTree(merkleTree dataframe.DataFrame) (merkleHa
 
 //TODO add logging and error handling for each function...
 
-// Retrieve MerkleRootHashFromMerkleTree
+// ExtractMerkleRootHashFromMerkleTree Retrieve MerkleRootHashFromMerkleTree
 func ExtractMerkleRootHashFromMerkleTree(merkleTree dataframe.DataFrame) (merkleRootHash string) {
 
 	// Filter out the MerkleRoot node

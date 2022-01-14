@@ -45,7 +45,7 @@ service FenixTestDataGrpcServices {
     }
 
     // Fenix client can send TestData rows to Fenix Testdata sync server with this service
-    rpc SendTestDataRows (MerkleTreeMessage) returns (AckNackResponse) {
+    rpc SendTestDataRows (TestdataRowsMessages) returns (AckNackResponse) {
     }
 
 }
@@ -83,14 +83,31 @@ message MerkleTreeNodeMessage {
 // Message holding all headers for the testdata
 message TestDataHeaderMessage {
     string TestDataClientGuid = 1;
-    string HeaderRowHash = 2;
+    string HeadersHash = 2;
     repeated TestDataHeaderItemMessage TestDataHeaderItems = 3;
 }
 
 // Message holding one Header Item
 message TestDataHeaderItemMessage {
-    string HeaderValueAsString = 2;
+    string HeaderPresentationsLabel = 1;
+    bool HeaderShouldbBeUsedForFilter = 2;
+    bool HeaderIsMandatoryInFilter = 3;
+    HeaderSelectionTypeEnum HeaderSelectionType = 4;
+   repeated HeaderFilterValues HeaderFilterValue = 5;
+
 }
+
+// How TestData filter can be selected
+enum HeaderSelectionTypeEnum {
+    HEADER_IS_SINGLE_SELECT = 0;
+    HEADER_IS_MULTI_SELECT = 1;
+}
+
+// One Filter value
+message HeaderFilterValues {
+    string HeaderFilterValuesAsString = 1;
+}
+
 
 // Message holding rows with TestData
 message TestdataRowsMessages {

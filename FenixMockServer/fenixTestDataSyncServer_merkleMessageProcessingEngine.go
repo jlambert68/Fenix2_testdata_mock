@@ -3,6 +3,7 @@ package FenixMockServer
 import (
 	fenixTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixTestDataSyncServerGrpcApi/proto"
 	"github.com/go-gota/gota/dataframe"
+	"strings"
 )
 
 /*
@@ -68,3 +69,16 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) conve
 
 	return headerHash, headersItems
 }
+
+// Convert TestDataRow message into TestData dataframe object
+func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) convertgRpcTestDataRowsMessageToDataFrame(testDataHeaderMessage fenixTestDataSyncServerGrpcApi.TestDataHeaderMessage) (testdataAsDataFrame dataframe.DataFrame {
+
+	jsonStr := `[{"COL.2":1,"COL.3":3},{"COL.1":5,"COL.2":2,"COL.3":2},{"COL.1":6,"COL.2":3,"COL.3":1}]`
+	df := dataframe.ReadJSON(strings.NewReader(jsonStr))
+
+
+	return testdataAsDataFrame
+
+}
+
+

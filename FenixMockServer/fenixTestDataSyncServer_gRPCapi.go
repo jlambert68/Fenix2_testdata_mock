@@ -101,7 +101,7 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaders(ctx context.Contex
 
 // *********************************************************************
 // Fenix client can send TestData rows to Fenix Testdata sync server with this service
-func (s *FenixTestDataGrpcServicesServer) SendTestDataRows(ctx context.Context, merkleTreeMessage *fenixTestDataSyncServerGrpcApi.MerkleTreeMessage) (*fenixTestDataSyncServerGrpcApi.AckNackResponse, error) {
+func (s *FenixTestDataGrpcServicesServer) SendTestDataRows(ctx context.Context, testdataRowsMessages *fenixTestDataSyncServerGrpcApi.TestdataRowsMessages) (*fenixTestDataSyncServerGrpcApi.AckNackResponse, error) {
 
 	fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 		"id": "2b1c8752-eb84-4c15-b8a7-22e2464e5168",
