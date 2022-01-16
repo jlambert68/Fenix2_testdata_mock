@@ -3,7 +3,6 @@ package FenixMockServer
 import (
 	fenixTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixTestDataSyncServerGrpcApi/proto"
 	"github.com/go-gota/gota/dataframe"
-	"strings"
 )
 
 /*
@@ -56,14 +55,14 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) conve
 func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) convertgRpcHeaderMessageToStringArray(testDataHeaderMessage fenixTestDataSyncServerGrpcApi.TestDataHeaderMessage) (headerHash string, headersItems []string) {
 
 	// Extract  HeaderHash
-	headerHash = testDataHeaderMessage.HeaderRowHash
+	headerHash = testDataHeaderMessage.HeadersHash
 
 	//dbCurrentMerkleTreeForClient = merkleTreeMessage.MerkleTreeNodes
 	testDataHeaderItems := testDataHeaderMessage.TestDataHeaderItems
 
 	// Loop all MerkleTreeNodes and create a DataFrame for the data
 	for _, headerItem := range testDataHeaderItems {
-		headersItems = append(headersItems, headerItem.HeaderValueAsString)
+		headersItems = append(headersItems, headerItem.HeaderPresentationsLabel)
 
 	}
 
@@ -71,6 +70,7 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) conve
 }
 
 // Convert TestDataRow message into TestData dataframe object
+/*
 func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) convertgRpcTestDataRowsMessageToDataFrame(testDataHeaderMessage fenixTestDataSyncServerGrpcApi.TestDataHeaderMessage) (testdataAsDataFrame dataframe.DataFrame {
 
 	jsonStr := `[{"COL.2":1,"COL.3":3},{"COL.1":5,"COL.2":2,"COL.3":2},{"COL.1":6,"COL.2":3,"COL.3":1}]`
@@ -82,3 +82,4 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) conve
 }
 
 
+*/

@@ -12,7 +12,7 @@ import (
 )
 
 // Set upp connection and Dial to FenixTestDataSyncServer
-func SetConnectionToFenixTestDataSyncServer() {
+func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SetConnectionToFenixTestDataSyncServer() {
 
 	var err error
 
@@ -70,6 +70,9 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 		ProtoFileVersionUsedByCLient: fenixTestDataSyncServerGrpcApi.CurrentTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
 	}
 
+	// Set up connection to Server
+	fenixClientTestDataSyncServerObject.SetConnectionToFenixTestDataSyncServer()
+
 	// Do gRPC-call
 	ctx := context.Background()
 	returnMessage, err := fenixTestDataSyncServerClient.RegisterTestDataClient(ctx, &TestDataClientInformationMessage)
@@ -94,12 +97,15 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 
 func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendMerkleHash() {
 
-	merkleRootHash, _ := common_config.LoadAndProcessFile("data/FenixRawTestdata_14rows_211216.csv")
+	merkleRootHash, _ := common_config.LoadAndProcessFile(testFile)
 
 	// Set up variables to be sent to FenixTestDataSyncServer
 	merkleHashMessage := fenixTestDataSyncServerGrpcApi.MerkleHashMessage{
 		TestDataClientGuid: common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
 		MerkleHash:         merkleRootHash}
+
+	// Set up connection to Server
+	fenixClientTestDataSyncServerObject.SetConnectionToFenixTestDataSyncServer()
 
 	// Do gRPC-call
 	ctx := context.Background()
@@ -128,7 +134,7 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 	var merkleTreeNodeMessages []*fenixTestDataSyncServerGrpcApi.MerkleTreeNodeMessage
 
 	// Set up variables to be sent to FenixTestDataSyncServer
-	_, merkleTree := common_config.LoadAndProcessFile("data/FenixRawTestdata_14rows_211216.csv")
+	_, merkleTree := common_config.LoadAndProcessFile(testFile)
 
 	merkleTreeNRows := merkleTree.Nrow()
 	for rowCounter := 0; rowCounter < merkleTreeNRows; rowCounter++ {
@@ -144,6 +150,9 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 	merkleTreeMessage := &fenixTestDataSyncServerGrpcApi.MerkleTreeMessage{
 		TestDataClientGuid: common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
 		MerkleTreeNodes:    merkleTreeNodeMessages}
+
+	// Set up connection to Server
+	fenixClientTestDataSyncServerObject.SetConnectionToFenixTestDataSyncServer()
 
 	// Do gRPC-call
 	ctx := context.Background()
@@ -169,27 +178,42 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 
 func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendTestDataHeaders() {
 
+	var testDataHeaderItemMessage *fenixTestDataSyncServerGrpcApi.TestDataHeaderItemMessage
 	var testDataHeaderItemsMessage []*fenixTestDataSyncServerGrpcApi.TestDataHeaderItemMessage
-	_, merkleTree := common_config.LoadAndProcessFile("data/FenixRawTestdata_14rows_211216.csv")
+	_, merkleTree := common_config.LoadAndProcessFile(testFile)
 
 	// Get all headers as a string array
 	headers := merkleTree.Names()
 
 	// Hash the header into a single hash
+	// TODO Redo how HeaderHash is calculated, all filter values must be included
 	headerHash := common_config.HashValues(headers)
 
 	// Create variables to be sent to FenixTestDataSyncServer
 	for _, header := range headers {
-		testDataHeaderItemMessage := &fenixTestDataSyncServerGrpcApi.TestDataHeaderItemMessage{HeaderValueAsString: header}
+		var headerFilterValues []*fenixTestDataSyncServerGrpcApi.HeaderFilterValue
+		headerFilterValue := &fenixTestDataSyncServerGrpcApi.HeaderFilterValue{HeaderFilterValuesAsString: "value 1"}
+		headerFilterValues = append(headerFilterValues, headerFilterValue)
+		testDataHeaderItemMessage = &fenixTestDataSyncServerGrpcApi.TestDataHeaderItemMessage{
+			HeaderPresentationsLabel:     header,
+			HeaderShouldbBeUsedForFilter: false,
+			HeaderIsMandatoryInFilter:    false,
+			HeaderSelectionType:          fenixTestDataSyncServerGrpcApi.HeaderSelectionTypeEnum_HEADER_IS_SINGLE_SELECT,
+			HeaderFilterValues:           headerFilterValues,
+		}
+
 		testDataHeaderItemsMessage = append(testDataHeaderItemsMessage, testDataHeaderItemMessage)
 	}
 
 	// Header message to be set to  TestDataSyncServer
 	testDataHeaderMessage := &fenixTestDataSyncServerGrpcApi.TestDataHeaderMessage{
 		TestDataClientGuid:  common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
-		HeaderRowHash:       headerHash,
+		HeadersHash:         headerHash,
 		TestDataHeaderItems: testDataHeaderItemsMessage,
 	}
+
+	// Set up connection to Server
+	fenixClientTestDataSyncServerObject.SetConnectionToFenixTestDataSyncServer()
 
 	// Do gRPC-call
 	ctx := context.Background()
@@ -267,6 +291,9 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 		TestDataClientGuid: common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
 		TestDataRows:       testdataRows,
 	}
+
+	// Set up connection to Server
+	fenixClientTestDataSyncServerObject.SetConnectionToFenixTestDataSyncServer()
 
 	// Do gRPC-call
 	ctx := context.Background()

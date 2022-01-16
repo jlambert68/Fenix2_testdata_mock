@@ -2,10 +2,12 @@ package FenixMockServer
 
 import (
 	"Fenix2_testdata_mock/common_config"
+	fenixClientTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixClientTestDataSyncServerGrpcApi/proto"
 	fenixTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixTestDataSyncServerGrpcApi/proto"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -25,22 +27,23 @@ type fenixTestDataSyncServerObject_struct struct {
 var fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct
 
 // Global connection constants
-var localServerEngineLocalPort = common_config.FenixClientTestDataSyncServer_initial_port
+var localServerEngineLocalPort = common_config.FenixTestDataSyncServer_port
 
 var (
 	registerfenixTestDataSyncServerServer *grpc.Server
 	lis                                   net.Listener
 )
 
-/*
 var (
 	// Standard gRPC Clientr
-	remoteQmlServerConnection *grpc.ClientConn
-	gRpcClientForQmlServer    qml_server_grpc_api.QmlGrpcServicesClient
+	remoteFenixClientTestDataSyncServerConnection *grpc.ClientConn
+	gRpcClientForFenixClientTestDataSyncServer    fenixClientTestDataSyncServerGrpcApi.FenixClientTestDataGrpcServicesClient
 
-	qmlServer_address_to_dial string = common_config.FenixTestDataSyncServer_address + common_config.FenixTestDataSyncServer_port
+	fenixClientTestDataSyncServer_address_to_dial string = common_config.FenixClientTestDataSyncServer_address + ":" + strconv.Itoa(common_config.FenixClientTestDataSyncServer_initial_port)
+
+	fenixClientTestDataSyncServerClient fenixClientTestDataSyncServerGrpcApi.FenixClientTestDataGrpcServicesClient
 )
-*/
+
 // Server used for register clients Name, Ip and Por and Clients Test Enviroments and Clients Test Commandst
 type FenixTestDataGrpcServicesServer struct {
 	fenixTestDataSyncServerGrpcApi.UnimplementedFenixTestDataGrpcServicesServer

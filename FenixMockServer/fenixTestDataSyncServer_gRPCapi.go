@@ -37,6 +37,19 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleHash(ctx context.Context, me
 	// Save the message
 	_ = fenixTestDataSyncServerObject.saveCurrentMerkleHashForClient(*merkleHashMessage)
 
+	// Compare current server- and client merklehash
+	currentServerMerkleHash := fenixTestDataSyncServerObject.getCurrentMerkleHashForServer(merkleHashMessage.TestDataClientGuid)
+
+	//  if different in MerkleHash then ask client for MerkleTree
+	if currentServerMerkleHash != merkleHashMessage.MerkleHash {
+
+		fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
+			"id": "cd30f2ae-6f79-4a0a-a8d8-a78d32dd6c71",
+		}).Debug("There is different in MerkleHash so ask client for MerkleTree for Client: " + merkleHashMessage.TestDataClientGuid)
+
+		defer fenixTestDataSyncServerObject.AskClientToSendMerkleTree(merkleHashMessage.TestDataClientGuid)
+	}
+
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
 
@@ -61,11 +74,33 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleTree(ctx context.Context, me
 
 	// Something is wrong with clients hash computation
 	if clientsMerkleRootHash != recalculatedMerkleRootHash {
+
+		fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
+			"id": "cd30f2ae-6f79-4a0a-a8d8-a78d32dd6c71",
+		}).Debug("There is something wrong with Hash computation. Expected: '" + recalculatedMerkleRootHash + "' as MerkleRoot based on MerkleTree-nodes")
+
 		return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: false, Comments: "There is something wrong with Hash computation. Expected: '" + recalculatedMerkleRootHash + "' as MerkleRoot based on MerkleTree-nodes"}, nil
 	}
 
 	// Save the MerkleTree Dataframe message
 	_ = fenixTestDataSyncServerObject.saveCurrentMerkleTreeForClient(merkleTreeMessage.TestDataClientGuid, merkleTreeAsDataFrame)
+
+	fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
+		"id": "cd30f2ae-6f79-4a0a-a8d8-a78d32dd6c71",
+	}).Debug("Saved MerkleTree for Client: " + merkleTreeMessage.TestDataClientGuid)
+
+	// Compare current server- and client merklehash
+	currentServerMerkleHash := fenixTestDataSyncServerObject.getCurrentMerkleHashForServer(merkleTreeMessage.TestDataClientGuid)
+
+	//  if different in MerkleHash(MerkleTree was different) then ask client for TestData-rows that the Server hasn't got
+	if currentServerMerkleHash != recalculatedMerkleRootHash {
+
+		fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
+			"id": "e011e854-7854-425f-9592-dcfc785203cf",
+		}).Debug("Different in MerkleHash(MerkleTree was different) then ask client for TestData-rows that the Server hasn't got. Client: " + merkleTreeMessage.TestDataClientGuid)
+
+		defer fenixTestDataSyncServerObject.AskClientToSendTestDataRows(merkleTreeMessage.TestDataClientGuid)
+	}
 
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
@@ -88,12 +123,21 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaders(ctx context.Contex
 	// Validate HeaderHash
 	computedHeaderHash := common_config.HashValues(headerItems)
 	if computedHeaderHash != headerHash {
+
+		fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
+			"id": "e4efabb7-eec6-4bb6-bbc2-f3447e14c15f",
+		}).Info("Header hash is not correct computed from Client. Expected '" + computedHeaderHash + "' as HeaderHash but got " + headerHash)
+
 		return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: false, Comments: "Header hash is not correct computed. Expected '" + computedHeaderHash + "' as HeaderHash"}, nil
 	}
 
 	// Save the message
 	_ = fenixTestDataSyncServerObject.saveCurrentHeaderHashsForClient(testDataHeaderMessage.TestDataClientGuid, headerHash)
 	_ = fenixTestDataSyncServerObject.saveCurrentHeadersForClient(testDataHeaderMessage.TestDataClientGuid, headerItems)
+
+	fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
+		"id": "6c90bc16-890a-402e-91b1-68fc060986c6",
+	}).Debug("Saved Header hash and Headers to DB for client: " + testDataHeaderMessage.TestDataClientGuid)
 
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 

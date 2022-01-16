@@ -40,6 +40,10 @@ service FenixClientTestDataGrpcServices {
     rpc SendMerkleTree (EmptyParameter) returns (AckNackResponse) {
     }
 
+    // Fenix Server asks Fenix client to send TestDataHeaderHash to Fenix Testdata sync server with this service
+    rpc SendTestDataHeaderHash (EmptyParameter) returns (AckNackResponse) {
+    }
+
     // Fenix Server asks Fenix client to send TestDataHeaders to Fenix Testdata sync server with this service
     rpc SendTestDataHeaders (EmptyParameter) returns (AckNackResponse) {
     }

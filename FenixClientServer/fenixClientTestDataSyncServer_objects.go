@@ -39,7 +39,7 @@ var (
 	remoteFenixTestDataSyncServerConnection *grpc.ClientConn
 	gRpcClientForFenixTestDataSyncServer    fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServicesClient
 
-	fenixTestDataSyncServer_address_to_dial string = common_config.FenixTestDataSyncServer_address + strconv.Itoa(common_config.FenixTestDataSyncServer_port)
+	fenixTestDataSyncServer_address_to_dial string = common_config.FenixTestDataSyncServer_address + ":" + strconv.Itoa(common_config.FenixTestDataSyncServer_port)
 
 	fenixTestDataSyncServerClient fenixTestDataSyncServerGrpcApi.FenixTestDataGrpcServicesClient
 )
@@ -48,3 +48,9 @@ var (
 type FenixClientTestDataGrpcServicesServer struct {
 	fenixClientTestDataSyncServerGrpcApi.UnimplementedFenixClientTestDataGrpcServicesServer
 }
+
+//TODO FIXA DENNA PATH, HMMM borde köra i DB framöver
+// For now hardcoded MerklePath
+var merkleFilterPath string = "AccountEnvironment/ClientJuristictionCountryCode/MarketSubType/MarketName/" //SecurityType/"
+
+var testFile = "../../data/FenixRawTestdata_14rows_211216.csv"

@@ -34,7 +34,7 @@ func (s *FenixClientTestDataGrpcServicesServer) SendMerkleHash(ctx context.Conte
 	}).Debug("Outgoing 'SendMerkleHash'")
 
 	// Send MerkleHash to Fenix after sending return message back to caller
-	defer fenixClientTestDataSyncServerObject.SendMerkleHash()
+	fenixClientTestDataSyncServerObject.SendMerkleHash()
 
 	return &fenixClientTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }

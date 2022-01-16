@@ -40,9 +40,14 @@ service FenixTestDataGrpcServices {
     rpc SendMerkleTree (MerkleTreeMessage) returns (AckNackResponse) {
     }
 
+    // Fenix client can send TestDataHeaderHash to Fenix Testdata sync server with this service
+    rpc SendTestDataHeaderHash (TestDataHeaderHashMessage) returns (AckNackResponse) {
+    }
+
     // Fenix client can send TestDataHeaders to Fenix Testdata sync server with this service
     rpc SendTestDataHeaders (TestDataHeaderMessage) returns (AckNackResponse) {
-    }
+    }    // Fenix client can send TestDataHeaders to Fenix Testdata sync server with this service
+
 
     // Fenix client can send TestData rows to Fenix Testdata sync server with this service
     rpc SendTestDataRows (TestdataRowsMessages) returns (AckNackResponse) {
@@ -80,6 +85,13 @@ message MerkleTreeNodeMessage {
     string MerkleChildHash = 4;
 }
 
+
+// Message holding the hash for all header information
+message TestDataHeaderHashMessage {
+    string TestDataClientGuid = 1;
+    string HeadersHash = 2;
+}
+
 // Message holding all headers for the testdata
 message TestDataHeaderMessage {
     string TestDataClientGuid = 1;
@@ -93,7 +105,7 @@ message TestDataHeaderItemMessage {
     bool HeaderShouldbBeUsedForFilter = 2;
     bool HeaderIsMandatoryInFilter = 3;
     HeaderSelectionTypeEnum HeaderSelectionType = 4;
-   repeated HeaderFilterValues HeaderFilterValue = 5;
+   repeated HeaderFilterValue HeaderFilterValues = 5;
 
 }
 
@@ -104,7 +116,7 @@ enum HeaderSelectionTypeEnum {
 }
 
 // One Filter value
-message HeaderFilterValues {
+message HeaderFilterValue {
     string HeaderFilterValuesAsString = 1;
 }
 
