@@ -2,6 +2,7 @@ package FenixClientServer
 
 import (
 	"Fenix2_testdata_mock/common_config"
+	fenixClientTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixClientTestDataSyncServerGrpcApi/proto"
 	fenixTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixTestDataSyncServerGrpcApi/proto"
 	"github.com/go-gota/gota/dataframe"
 	"github.com/sirupsen/logrus"
@@ -11,6 +12,7 @@ import (
 	"os"
 )
 
+// ********************************************************************************************************************
 // Set upp connection and Dial to FenixTestDataSyncServer
 func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SetConnectionToFenixTestDataSyncServer() {
 
@@ -35,12 +37,13 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 	}
 }
 
-// Get the highest ProtoFileVersionEnumeration
-func getHighestProtoFileVersion() int32 {
+// ********************************************************************************************************************
+// Get the highest FenixProtoFileVersionEnumeration
+func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) getHighestFenixProtoFileVersion() int32 {
 
-	// Check if there already is a 'highestProtoFileVersion' saved, if so use that one
-	if highestProtoFileVersion != -1 {
-		return highestProtoFileVersion
+	// Check if there already is a 'highestFenixProtoFileVersion' saved, if so use that one
+	if highestFenixProtoFileVersion != -1 {
+		return highestFenixProtoFileVersion
 	}
 
 	// Find the highest value for proto-file version
@@ -53,9 +56,58 @@ func getHighestProtoFileVersion() int32 {
 		}
 	}
 
-	highestProtoFileVersion = maxValue
+	highestFenixProtoFileVersion = maxValue
 
-	return highestProtoFileVersion
+	return highestFenixProtoFileVersion
+}
+
+// ********************************************************************************************************************
+// Get the highest ClientProtoFileVersionEnumeration
+func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) getHighestClientProtoFileVersion() int32 {
+
+	// Check if there already is a 'highestclientProtoFileVersion' saved, if so use that one
+	if highestClientProtoFileVersion != -1 {
+		return highestClientProtoFileVersion
+	}
+
+	// Find the highest value for proto-file version
+	var maxValue int32
+	maxValue = 0
+
+	for _, v := range fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum_value {
+		if v > maxValue {
+			maxValue = v
+		}
+	}
+
+	highestClientProtoFileVersion = maxValue
+
+	return highestClientProtoFileVersion
+}
+
+// ********************************************************************************************************************
+// Check if Calling 'system' (Fenix or Clients own methods) is using correct proto-file version
+func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) isCallerUsingCorrectProtoFileVersion(
+	usedProtoFileVersion fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum) (
+	clientUseCorrectProtoFileVersion bool,
+	protoFileExpected fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum,
+	protoFileUsed fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum) {
+
+	protoFileUsed = usedProtoFileVersion
+	protoFileExpected = fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(
+		fenixClientTestDataSyncServerObject.getHighestFenixProtoFileVersion())
+
+	// Check if correct proto files is used
+	if protoFileExpected == protoFileUsed {
+		clientUseCorrectProtoFileVersion = true
+	} else {
+		clientUseCorrectProtoFileVersion = true
+	}
+
+	//protoFileExpectedDescription := protoFileExpected.String()
+	//protoFileExpectedDescription := protoFileExpected.String()
+
+	return clientUseCorrectProtoFileVersion, protoFileExpected, protoFileUsed
 }
 
 // Generate the current MerkleTree for Testdata supported by the client
@@ -66,6 +118,8 @@ func getCurrentTestDataMerkleTree() fenixTestDataSyncServerGrpcApi.MerkleTreeMes
 	return merkleTreeMessage
 }
 
+// ********************************************************************************************************************
+// Register the client at Fenix by calling Fenix's gPRC server
 func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) RegisterTestDataClient() {
 
 	// Set up variables to be sent to FenixTestDataSyncServer
@@ -75,7 +129,7 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 		TestDomainName:               common_config.FenicClientTestDataSyncServer_DomainName,
 		TestDataClientIpAddress:      common_config.FenixClientTestDataSyncServer_address,
 		TestDataClientPort:           string(common_config.FenixClientTestDataSyncServer_initial_port),
-		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(fenixClientTestDataSyncServerObject.getHighestFenixProtoFileVersion()),
 	}
 
 	// Set up connection to Server
@@ -103,15 +157,18 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 
 }
 
+// ********************************************************************************************************************
+// Send the client's MerkleHash to Fenix by calling Fenix's gPRC server
 func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendMerkleHash() {
 
 	merkleRootHash, _ := common_config.LoadAndProcessFile(testFile)
 
 	// Set up variables to be sent to FenixTestDataSyncServer
 	merkleHashMessage := fenixTestDataSyncServerGrpcApi.MerkleHashMessage{
-		TestDataClientGuid:           common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
-		MerkleHash:                   merkleRootHash,
-		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+		TestDataClientGuid: common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
+		MerkleHash:         merkleRootHash,
+		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(
+			fenixClientTestDataSyncServerObject.getHighestFenixProtoFileVersion()),
 	}
 
 	// Set up connection to Server
@@ -139,6 +196,8 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 
 }
 
+// ********************************************************************************************************************
+// Send the client's MerkleTree to Fenix by calling Fenix's gPRC server
 func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendMerkleTree() {
 
 	var merkleTreeNodeMessages []*fenixTestDataSyncServerGrpcApi.MerkleTreeNodeMessage
@@ -158,9 +217,10 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 		merkleTreeNodeMessages = append(merkleTreeNodeMessages, merkleTreeNodeMessage)
 	}
 	merkleTreeMessage := &fenixTestDataSyncServerGrpcApi.MerkleTreeMessage{
-		TestDataClientGuid:           common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
-		MerkleTreeNodes:              merkleTreeNodeMessages,
-		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+		TestDataClientGuid: common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
+		MerkleTreeNodes:    merkleTreeNodeMessages,
+		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(
+			fenixClientTestDataSyncServerObject.getHighestFenixProtoFileVersion()),
 	}
 
 	// Set up connection to Server
@@ -188,6 +248,8 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 
 }
 
+// ********************************************************************************************************************
+// Send the client's TestDataHeaders to Fenix by calling Fenix's gPRC server
 func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendTestDataHeaders() {
 
 	var testDataHeaderItemMessage *fenixTestDataSyncServerGrpcApi.TestDataHeaderItemMessage
@@ -220,10 +282,11 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 
 	// Header message to be set to  TestDataSyncServer
 	testDataHeaderMessage := &fenixTestDataSyncServerGrpcApi.TestDataHeaderMessage{
-		TestDataClientGuid:           common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
-		HeadersHash:                  headerHash,
-		TestDataHeaderItems:          testDataHeaderItemsMessage,
-		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+		TestDataClientGuid:  common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
+		HeadersHash:         headerHash,
+		TestDataHeaderItems: testDataHeaderItemsMessage,
+		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(
+			fenixClientTestDataSyncServerObject.getHighestFenixProtoFileVersion()),
 	}
 
 	// Set up connection to Server
@@ -251,6 +314,9 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 
 }
 
+// TODO - fix so fkn can take which rows to send back
+// ********************************************************************************************************************
+// Send the client's TestDataRow to Fenix by calling Fenix's gPRC server
 func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_struct) SendTestDataRows() {
 
 	var testdataRowsMessages *fenixTestDataSyncServerGrpcApi.TestdataRowsMessages
@@ -304,7 +370,7 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 	testdataRowsMessages = &fenixTestDataSyncServerGrpcApi.TestdataRowsMessages{
 		TestDataClientGuid:           common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
 		TestDataRows:                 testdataRows,
-		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(fenixClientTestDataSyncServerObject.getHighestFenixProtoFileVersion()),
 	}
 
 	// Set up connection to Server

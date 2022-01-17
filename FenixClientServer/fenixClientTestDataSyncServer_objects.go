@@ -55,4 +55,5 @@ var merkleFilterPath string = "AccountEnvironment/ClientJuristictionCountryCode/
 
 var testFile = "../../data/FenixRawTestdata_14rows_211216.csv"
 
-var highestProtoFileVersion int32 = -1
+var highestFenixProtoFileVersion int32 = -1
+var highestClientProtoFileVersion int32 = -1
