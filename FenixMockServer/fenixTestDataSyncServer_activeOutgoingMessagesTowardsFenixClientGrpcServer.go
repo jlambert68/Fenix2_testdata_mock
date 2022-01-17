@@ -2,6 +2,7 @@ package FenixMockServer
 
 import (
 	fenixClientTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixClientTestDataSyncServerGrpcApi/proto"
+	fenixTestDataSyncServerGrpcApi "Fenix2_testdata_mock/grpc_api/fenixTestDataSyncServerGrpcApi/proto"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -31,6 +32,29 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) SetCo
 	}
 }
 
+// Get the highest ProtoFileVersionEnumeration
+func getHighestProtoFileVersion() int32 {
+
+	// Check if there already is a 'highestProtoFileVersion' saved, if so use that one
+	if highestProtoFileVersion != -1 {
+		return highestProtoFileVersion
+	}
+
+	// Find the highest value for proto-file version
+	var maxValue int32
+	maxValue = 0
+
+	for _, v := range fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum_value {
+		if v > maxValue {
+			maxValue = v
+		}
+	}
+
+	highestProtoFileVersion = maxValue
+
+	return highestProtoFileVersion
+}
+
 // Fenix Server asks Fenix client to register itself with the Fenix Testdata sync server
 //func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct)  RegisterTestDataClient(EmptyParameter) returns (AckNackResponse) {
 //}
@@ -41,7 +65,9 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) AskCl
 	// Set up connection to Client-server
 	fenixTestDataSyncServerObject.SetConnectionToFenixClientTestDataSyncServer()
 
-	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{}
+	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{
+		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+	}
 
 	// Do gRPC-call
 	ctx := context.Background()
@@ -70,7 +96,9 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) AskCl
 	// Set up connection to Client-server
 	fenixTestDataSyncServerObject.SetConnectionToFenixClientTestDataSyncServer()
 
-	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{}
+	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{
+		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+	}
 
 	// Do gRPC-call
 	ctx := context.Background()
@@ -100,25 +128,27 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) AskCl
 	// Set up connection to Client-server
 	fenixTestDataSyncServerObject.SetConnectionToFenixClientTestDataSyncServer()
 
-	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{}
+	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{
+		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+	}
 
 	// Do gRPC-call
 	ctx := context.Background()
-	returnMessage, err := fenixClientTestDataSyncServerClient.SendTestDataHeaders(ctx, emptyParameter)
+	returnMessage, err := fenixClientTestDataSyncServerClient.SendTestDataHeaderHash(ctx, emptyParameter)
 
 	// Shouldn't happen
 	if err != nil {
 		fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 			"ID":    "ef7d59cc-88b5-447e-83f5-ac018f2320bd",
 			"error": err,
-		}).Fatal("Problem to do gRPC-call to FenixClientTestDataSyncServer for 'AskClientToSendTestDataHeaders'")
+		}).Fatal("Problem to do gRPC-call to FenixClientTestDataSyncServer for 'AskClientToSendTestDataHeaderHash'")
 
 		// FenixTestDataSyncServer couldn't handle gPRC call
 		if returnMessage.Acknack == false {
 			fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 				"ID": "bac41696-c8a3-4d11-ac1c-68965c8a1572",
 				"Message from FenixClientTestDataSyncServerObject": returnMessage.Comments,
-			}).Error("Problem to do gRPC-call to FenixClientTestDataSyncServer for 'AskClientToSendTestDataHeaders'")
+			}).Error("Problem to do gRPC-call to FenixClientTestDataSyncServer for 'AskClientToSendTestDataHeaderHash'")
 		}
 	}
 
@@ -130,7 +160,9 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) AskCl
 	// Set up connection to Client-server
 	fenixTestDataSyncServerObject.SetConnectionToFenixClientTestDataSyncServer()
 
-	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{}
+	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{
+		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+	}
 
 	// Do gRPC-call
 	ctx := context.Background()

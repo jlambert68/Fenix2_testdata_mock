@@ -54,3 +54,5 @@ type FenixClientTestDataGrpcServicesServer struct {
 var merkleFilterPath string = "AccountEnvironment/ClientJuristictionCountryCode/MarketSubType/MarketName/" //SecurityType/"
 
 var testFile = "../../data/FenixRawTestdata_14rows_211216.csv"
+
+var highestProtoFileVersion int32 = -1

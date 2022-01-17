@@ -64,3 +64,5 @@ var TestDataHeaderMessageChannel chan fenixTestDataSyncServerGrpcApi.TestDataHea
 
 // 'MerkleTreeMessage' from 'gRPC-SendTestDataRows'
 var MerkleTreeMessageMessageChannel chan fenixTestDataSyncServerGrpcApi.MerkleTreeMessage
+
+var highestProtoFileVersion int32 = -1

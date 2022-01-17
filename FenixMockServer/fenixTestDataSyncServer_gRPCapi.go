@@ -34,20 +34,23 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleHash(ctx context.Context, me
 		"id": "27fb45fe-3266-41aa-a6af-958513977e28",
 	}).Debug("Outgoing 'SendMerkleHash'")
 
+	// Get calling client
+	callingClientGuid := merkleHashMessage.TestDataClientGuid
+
 	// Save the message
 	_ = fenixTestDataSyncServerObject.saveCurrentMerkleHashForClient(*merkleHashMessage)
 
 	// Compare current server- and client merklehash
-	currentServerMerkleHash := fenixTestDataSyncServerObject.getCurrentMerkleHashForServer(merkleHashMessage.TestDataClientGuid)
+	currentServerMerkleHash := fenixTestDataSyncServerObject.getCurrentMerkleHashForServer(callingClientGuid)
 
 	//  if different in MerkleHash then ask client for MerkleTree
 	if currentServerMerkleHash != merkleHashMessage.MerkleHash {
 
 		fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 			"id": "cd30f2ae-6f79-4a0a-a8d8-a78d32dd6c71",
-		}).Debug("There is different in MerkleHash so ask client for MerkleTree for Client: " + merkleHashMessage.TestDataClientGuid)
+		}).Debug("There is different in MerkleHash so ask client for MerkleTree for Client: " + callingClientGuid)
 
-		defer fenixTestDataSyncServerObject.AskClientToSendMerkleTree(merkleHashMessage.TestDataClientGuid)
+		defer fenixTestDataSyncServerObject.AskClientToSendMerkleTree(callingClientGuid)
 	}
 
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
@@ -64,6 +67,9 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleTree(ctx context.Context, me
 	defer fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 		"id": "61e2c28d-b091-442a-b7f8-d2502d9547cf",
 	}).Debug("Outgoing 'SendMerkleTree'")
+
+	// Get calling client
+	callingClientGuid := merkleTreeMessage.TestDataClientGuid
 
 	// Convert the merkleTree into a DataFrame object
 	merkleTreeAsDataFrame := fenixTestDataSyncServerObject.convertgRpcMerkleTreeMessageToDataframe(*merkleTreeMessage)
@@ -83,26 +89,68 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleTree(ctx context.Context, me
 	}
 
 	// Save the MerkleTree Dataframe message
-	_ = fenixTestDataSyncServerObject.saveCurrentMerkleTreeForClient(merkleTreeMessage.TestDataClientGuid, merkleTreeAsDataFrame)
+	_ = fenixTestDataSyncServerObject.saveCurrentMerkleTreeForClient(callingClientGuid, merkleTreeAsDataFrame)
 
 	fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 		"id": "cd30f2ae-6f79-4a0a-a8d8-a78d32dd6c71",
-	}).Debug("Saved MerkleTree for Client: " + merkleTreeMessage.TestDataClientGuid)
+	}).Debug("Saved MerkleTree for Client: " + callingClientGuid)
 
 	// Compare current server- and client merklehash
-	currentServerMerkleHash := fenixTestDataSyncServerObject.getCurrentMerkleHashForServer(merkleTreeMessage.TestDataClientGuid)
+	currentServerMerkleHash := fenixTestDataSyncServerObject.getCurrentMerkleHashForServer(callingClientGuid)
 
 	//  if different in MerkleHash(MerkleTree was different) then ask client for TestData-rows that the Server hasn't got
 	if currentServerMerkleHash != recalculatedMerkleRootHash {
 
 		fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 			"id": "e011e854-7854-425f-9592-dcfc785203cf",
-		}).Debug("Different in MerkleHash(MerkleTree was different) then ask client for TestData-rows that the Server hasn't got. Client: " + merkleTreeMessage.TestDataClientGuid)
+		}).Debug("Different in MerkleHash(MerkleTree was different) then ask client for TestData-rows that the Server hasn't got. Client: " + callingClientGuid)
 
-		defer fenixTestDataSyncServerObject.AskClientToSendTestDataRows(merkleTreeMessage.TestDataClientGuid)
+		defer fenixTestDataSyncServerObject.AskClientToSendTestDataRows(callingClientGuid)
 	}
 
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
+}
+
+// *********************************************************************
+// Fenix client can send TestDataHeaders to Fenix Testdata sync server with this service
+func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaderHash(ctx context.Context, testDataHeaderHashMessageMessage *fenixTestDataSyncServerGrpcApi.TestDataHeaderHashMessage) (*fenixTestDataSyncServerGrpcApi.AckNackResponse, error) {
+
+	fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
+		"id": "c8e72834-338c-48be-885c-f083fe7951a6",
+	}).Debug("Incoming 'SendTestDataHeaders'")
+
+	defer fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
+		"id": "b3576bdc-ac11-44cd-9fa2-cd7065f1253d",
+	}).Debug("Outgoing 'SendTestDataHeaders'")
+
+	// Get calling client
+	callingClientGuid := testDataHeaderHashMessageMessage.TestDataClientGuid
+
+	// Convert gRPC-message into other 'format'
+	clientHeaderHash := testDataHeaderHashMessageMessage.HeadersHash
+
+	// Save the message
+	_ = fenixTestDataSyncServerObject.saveCurrentHeaderHashForClient(callingClientGuid, clientHeaderHash)
+
+	fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
+		"id": "2cdb17e4-95c8-4d56-b2cd-7f4c8829c735",
+	}).Debug("Saved Header hash to DB for client: " + callingClientGuid)
+
+	// Check if Server Header Hash is the same as received Client HeaderHash
+	serverHeaderHash := fenixTestDataSyncServerObject.getCurrentHeaderHashForServer(callingClientGuid)
+	if serverHeaderHash != clientHeaderHash {
+
+		fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
+			"id": "e4efabb7-eec6-4bb6-bbc2-f3447e14c15f",
+		}).Debug("Server Header hash is not the same as Client Header Hash, Ask Client for all Headers, Client: " + callingClientGuid)
+
+		// Ask Client for all Headers
+		defer fenixTestDataSyncServerObject.AskClientToSendTestDataHeaders(callingClientGuid)
+
+	}
+
+	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
+
 }
 
 // *********************************************************************
@@ -116,6 +164,9 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaders(ctx context.Contex
 	defer fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 		"id": "ca0b58a8-6d56-4392-8751-45906670e86b",
 	}).Debug("Outgoing 'SendTestDataHeaders'")
+
+	// Get calling client
+	callingClientGuid := testDataHeaderMessage.TestDataClientGuid
 
 	// Convert gRPC-message into other 'format'
 	headerHash, headerItems := fenixTestDataSyncServerObject.convertgRpcHeaderMessageToStringArray(*testDataHeaderMessage)
@@ -132,12 +183,14 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaders(ctx context.Contex
 	}
 
 	// Save the message
-	_ = fenixTestDataSyncServerObject.saveCurrentHeaderHashsForClient(testDataHeaderMessage.TestDataClientGuid, headerHash)
-	_ = fenixTestDataSyncServerObject.saveCurrentHeadersForClient(testDataHeaderMessage.TestDataClientGuid, headerItems)
+	_ = fenixTestDataSyncServerObject.saveCurrentHeaderHashForClient(callingClientGuid, headerHash)
+	_ = fenixTestDataSyncServerObject.saveCurrentHeadersForClient(callingClientGuid, headerItems)
 
+	// Replace Server version of Headers with Client version of Headers
+	_ = fenixTestDataSyncServerObject.moveCurrentHeadersFromClientToServer(callingClientGuid)
 	fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 		"id": "6c90bc16-890a-402e-91b1-68fc060986c6",
-	}).Debug("Saved Header hash and Headers to DB for client: " + testDataHeaderMessage.TestDataClientGuid)
+	}).Debug("Saved Header hash and Headers to DB for client: " + callingClientGuid)
 
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 
@@ -158,7 +211,7 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataRows(ctx context.Context, 
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
 
-// Fenix client can register itself with the Fenix Testdata sync server
+// RegisterTestDataClient Fenix client can register itself with the Fenix Testdata sync server
 func (s *FenixTestDataGrpcServicesServer) RegisterTestDataClient(ctx context.Context, testDataClientInformationMessage *fenixTestDataSyncServerGrpcApi.TestDataClientInformationMessage) (*fenixTestDataSyncServerGrpcApi.AckNackResponse, error) {
 
 	fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{

@@ -5,13 +5,14 @@ option go_package ="./proto";
 // Used to have client and server in sync with using the same proto file version
 // Minor changes is backwards compatible with previous version
 // Major changes changes needs to be the same for server and client
-enum CurrentTestDataProtoFileVersionEnum {
+enum CurrentFenixClientTestDataProtoFileVersionEnum {
     VERSION_0_9 = 0 [deprecated = true];
     VERSION_1_0 = 1; // Current version
 }
 
 // Parameter used for Empty inputs
 message EmptyParameter {
+    CurrentFenixClientTestDataProtoFileVersionEnum ProtoFileVersionUsedByCaller = 1;
 }
 
 // Ack/Nack- Response message with comment
@@ -56,4 +57,5 @@ service FenixClientTestDataGrpcServices {
 // List of MerklePath's to be sent från client to FenixTestDataSyncServer
 message MerklePathsMessage {
     repeated string MerklePath = 1;
+    CurrentFenixClientTestDataProtoFileVersionEnum ProtoFileVersionUsedByCaller = 2;
 }

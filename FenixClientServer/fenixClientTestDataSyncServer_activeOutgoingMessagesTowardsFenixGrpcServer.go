@@ -38,16 +38,24 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 // Get the highest ProtoFileVersionEnumeration
 func getHighestProtoFileVersion() int32 {
 
+	// Check if there already is a 'highestProtoFileVersion' saved, if so use that one
+	if highestProtoFileVersion != -1 {
+		return highestProtoFileVersion
+	}
+
+	// Find the highest value for proto-file version
 	var maxValue int32
 	maxValue = 0
 
-	for _, v := range fenixTestDataSyncServerGrpcApi.CurrentTestDataProtoFileVersionEnum_value {
+	for _, v := range fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum_value {
 		if v > maxValue {
 			maxValue = v
 		}
 	}
 
-	return maxValue
+	highestProtoFileVersion = maxValue
+
+	return highestProtoFileVersion
 }
 
 // Generate the current MerkleTree for Testdata supported by the client
@@ -67,7 +75,7 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 		TestDomainName:               common_config.FenicClientTestDataSyncServer_DomainName,
 		TestDataClientIpAddress:      common_config.FenixClientTestDataSyncServer_address,
 		TestDataClientPort:           string(common_config.FenixClientTestDataSyncServer_initial_port),
-		ProtoFileVersionUsedByCLient: fenixTestDataSyncServerGrpcApi.CurrentTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
 	}
 
 	// Set up connection to Server
@@ -101,8 +109,10 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 
 	// Set up variables to be sent to FenixTestDataSyncServer
 	merkleHashMessage := fenixTestDataSyncServerGrpcApi.MerkleHashMessage{
-		TestDataClientGuid: common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
-		MerkleHash:         merkleRootHash}
+		TestDataClientGuid:           common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
+		MerkleHash:                   merkleRootHash,
+		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+	}
 
 	// Set up connection to Server
 	fenixClientTestDataSyncServerObject.SetConnectionToFenixTestDataSyncServer()
@@ -148,8 +158,10 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 		merkleTreeNodeMessages = append(merkleTreeNodeMessages, merkleTreeNodeMessage)
 	}
 	merkleTreeMessage := &fenixTestDataSyncServerGrpcApi.MerkleTreeMessage{
-		TestDataClientGuid: common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
-		MerkleTreeNodes:    merkleTreeNodeMessages}
+		TestDataClientGuid:           common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
+		MerkleTreeNodes:              merkleTreeNodeMessages,
+		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+	}
 
 	// Set up connection to Server
 	fenixClientTestDataSyncServerObject.SetConnectionToFenixTestDataSyncServer()
@@ -195,11 +207,12 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 		headerFilterValue := &fenixTestDataSyncServerGrpcApi.HeaderFilterValue{HeaderFilterValuesAsString: "value 1"}
 		headerFilterValues = append(headerFilterValues, headerFilterValue)
 		testDataHeaderItemMessage = &fenixTestDataSyncServerGrpcApi.TestDataHeaderItemMessage{
-			HeaderPresentationsLabel:     header,
-			HeaderShouldbBeUsedForFilter: false,
-			HeaderIsMandatoryInFilter:    false,
-			HeaderSelectionType:          fenixTestDataSyncServerGrpcApi.HeaderSelectionTypeEnum_HEADER_IS_SINGLE_SELECT,
-			HeaderFilterValues:           headerFilterValues,
+			HeaderPresentationsLabel:             header,
+			HeaderDataLabel:                      header,
+			HeaderShouldbBeUsedForTestDataFilter: false,
+			HeaderIsMandatoryInTestDataFilter:    false,
+			HeaderSelectionType:                  fenixTestDataSyncServerGrpcApi.HeaderSelectionTypeEnum_HEADER_IS_SINGLE_SELECT,
+			HeaderFilterValues:                   headerFilterValues,
 		}
 
 		testDataHeaderItemsMessage = append(testDataHeaderItemsMessage, testDataHeaderItemMessage)
@@ -207,9 +220,10 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 
 	// Header message to be set to  TestDataSyncServer
 	testDataHeaderMessage := &fenixTestDataSyncServerGrpcApi.TestDataHeaderMessage{
-		TestDataClientGuid:  common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
-		HeadersHash:         headerHash,
-		TestDataHeaderItems: testDataHeaderItemsMessage,
+		TestDataClientGuid:           common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
+		HeadersHash:                  headerHash,
+		TestDataHeaderItems:          testDataHeaderItemsMessage,
+		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
 	}
 
 	// Set up connection to Server
@@ -288,8 +302,9 @@ func (fenixClientTestDataSyncServerObject *fenixClientTestDataSyncServerObject_s
 
 	// Create the message with all test data to be sent to Fenix
 	testdataRowsMessages = &fenixTestDataSyncServerGrpcApi.TestdataRowsMessages{
-		TestDataClientGuid: common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
-		TestDataRows:       testdataRows,
+		TestDataClientGuid:           common_config.FenicClientTestDataSyncServer_TestDataClientGuid,
+		TestDataRows:                 testdataRows,
+		ProtoFileVersionUsedByClient: fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
 	}
 
 	// Set up connection to Server

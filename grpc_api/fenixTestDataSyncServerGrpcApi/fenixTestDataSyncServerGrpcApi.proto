@@ -5,20 +5,31 @@ option go_package ="./proto";
 // Used to have client and server in sync with using the same proto file version
 // Minor changes is backwards compatible with previous version
 // Major changes changes needs to be the same for server and client
-enum CurrentTestDataProtoFileVersionEnum {
+enum CurrentFenixTestDataProtoFileVersionEnum {
     VERSION_0_9 = 0 [deprecated = true];
     VERSION_1_0 = 1; // Current version
 }
 
-// Parameter used for Empty inputs
+// Error codes - for now a test
+enum ErrorCodesEnum {
+    OK = 0;
+    ERROR_UNKNOWN_CALLER = 1;
+    ERROR_WRONG_PROTO_FILE_VERSION = 2;
+}
+
+// Parameter used for Empty inputs, only containing current proto-file version
 message EmptyParameter {
+    CurrentFenixTestDataProtoFileVersionEnum ProtoFileVersionUsedByClient = 1;
 }
 
 // Ack/Nack- Response message with comment
 message AckNackResponse {
     bool acknack = 1; // True=Ack, False=Nack
     string comments = 2; //Comments if needed
+    repeated ErrorCodesEnum ErrorCodes = 3;
 }
+
+
 
 // Fenix Testdata sync server service definition.
 // ***********************
@@ -62,19 +73,22 @@ message TestDataClientInformationMessage {
     string TestDomainName = 3;
     string TestDataClientIpAddress = 4;
     string TestDataClientPort = 5;
-    CurrentTestDataProtoFileVersionEnum ProtoFileVersionUsedByCLient = 6;
+    CurrentFenixTestDataProtoFileVersionEnum ProtoFileVersionUsedByClient = 6;
 }
 
 // Message holding the top MerkleTree hash
 message MerkleHashMessage {
     string TestDataClientGuid = 1;
     string MerkleHash = 2;
+    CurrentFenixTestDataProtoFileVersionEnum ProtoFileVersionUsedByClient = 3;
+
 }
 
 // Message holding the complete MerkleTree for the hashes
 message MerkleTreeMessage {
     string TestDataClientGuid = 1;
     repeated MerkleTreeNodeMessage MerkleTreeNodes = 2;
+    CurrentFenixTestDataProtoFileVersionEnum ProtoFileVersionUsedByClient = 3;
 }
 
 // Message holding one node of the MerkleTree
@@ -90,6 +104,7 @@ message MerkleTreeNodeMessage {
 message TestDataHeaderHashMessage {
     string TestDataClientGuid = 1;
     string HeadersHash = 2;
+    CurrentFenixTestDataProtoFileVersionEnum ProtoFileVersionUsedByClient = 3;
 }
 
 // Message holding all headers for the testdata
@@ -97,15 +112,17 @@ message TestDataHeaderMessage {
     string TestDataClientGuid = 1;
     string HeadersHash = 2;
     repeated TestDataHeaderItemMessage TestDataHeaderItems = 3;
+    CurrentFenixTestDataProtoFileVersionEnum ProtoFileVersionUsedByClient = 4;
 }
 
 // Message holding one Header Item
 message TestDataHeaderItemMessage {
     string HeaderPresentationsLabel = 1;
-    bool HeaderShouldbBeUsedForFilter = 2;
-    bool HeaderIsMandatoryInFilter = 3;
-    HeaderSelectionTypeEnum HeaderSelectionType = 4;
-   repeated HeaderFilterValue HeaderFilterValues = 5;
+    string HeaderDataLabel = 2;
+    bool HeaderShouldbBeUsedForTestDataFilter = 3;
+    bool HeaderIsMandatoryInTestDataFilter = 4;
+    HeaderSelectionTypeEnum HeaderSelectionType = 5;
+   repeated HeaderFilterValue HeaderFilterValues = 6;
 
 }
 
@@ -125,6 +142,7 @@ message HeaderFilterValue {
 message TestdataRowsMessages {
     string TestDataClientGuid = 1;
     repeated TestDataRowMessage TestDataRows = 2;
+    CurrentFenixTestDataProtoFileVersionEnum ProtoFileVersionUsedByClient = 3;
 }
 
 // Message Holding one TestData row
