@@ -19,6 +19,29 @@ func (s *FenixTestDataGrpcServicesServer) AreYouAlive(ctx context.Context, empty
 		"id": "9c7f0c3d-7e9f-4c91-934e-8d7a22926d84",
 	}).Debug("Outgoing 'AreYouAlive'")
 
+	// Check if Client is using correct proto files version
+	clientUseCorrectProtoFileVersion, protoFileExpected, protoFileUsed := fenixTestDataSyncServerObject.isClientUsingCorrectProtoFileVersion(emptyParameter.ProtoFileVersionUsedByClient)
+	if clientUseCorrectProtoFileVersion == false {
+		// Not correct proto-file version is used
+
+		// Set Error codes to return message
+		var errorCodes []fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+		var errorCode fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+
+		errorCode = fenixTestDataSyncServerGrpcApi.ErrorCodesEnum_ERROR_WRONG_PROTO_FILE_VERSION
+		errorCodes = append(errorCodes, errorCode)
+
+		// Create Return message
+		returnMessage := &fenixTestDataSyncServerGrpcApi.AckNackResponse{
+			Acknack:    false,
+			Comments:   "Wrong proto file used. Expected: '" + protoFileExpected.String() + "', but got: '" + protoFileUsed.String() + "'",
+			ErrorCodes: errorCodes,
+		}
+
+		return returnMessage, nil
+
+	}
+
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: "I'am alive"}, nil
 }
 
@@ -36,6 +59,29 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleHash(ctx context.Context, me
 
 	// Get calling client
 	callingClientGuid := merkleHashMessage.TestDataClientGuid
+
+	// Check if Client is using correct proto files version
+	clientUseCorrectProtoFileVersion, protoFileExpected, protoFileUsed := fenixTestDataSyncServerObject.isClientUsingCorrectProtoFileVersion(merkleHashMessage.ProtoFileVersionUsedByClient)
+	if clientUseCorrectProtoFileVersion == false {
+		// Not correct proto-file version is used
+
+		// Set Error codes to return message
+		var errorCodes []fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+		var errorCode fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+
+		errorCode = fenixTestDataSyncServerGrpcApi.ErrorCodesEnum_ERROR_WRONG_PROTO_FILE_VERSION
+		errorCodes = append(errorCodes, errorCode)
+
+		// Create Return message
+		returnMessage := &fenixTestDataSyncServerGrpcApi.AckNackResponse{
+			Acknack:    false,
+			Comments:   "Wrong proto file used. Expected: '" + protoFileExpected.String() + "', but got: '" + protoFileUsed.String() + "'",
+			ErrorCodes: errorCodes,
+		}
+
+		return returnMessage, nil
+
+	}
 
 	// Save the message
 	_ = fenixTestDataSyncServerObject.saveCurrentMerkleHashForClient(*merkleHashMessage)
@@ -70,6 +116,29 @@ func (s *FenixTestDataGrpcServicesServer) SendMerkleTree(ctx context.Context, me
 
 	// Get calling client
 	callingClientGuid := merkleTreeMessage.TestDataClientGuid
+
+	// Check if Client is using correct proto files version
+	clientUseCorrectProtoFileVersion, protoFileExpected, protoFileUsed := fenixTestDataSyncServerObject.isClientUsingCorrectProtoFileVersion(merkleTreeMessage.ProtoFileVersionUsedByClient)
+	if clientUseCorrectProtoFileVersion == false {
+		// Not correct proto-file version is used
+
+		// Set Error codes to return message
+		var errorCodes []fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+		var errorCode fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+
+		errorCode = fenixTestDataSyncServerGrpcApi.ErrorCodesEnum_ERROR_WRONG_PROTO_FILE_VERSION
+		errorCodes = append(errorCodes, errorCode)
+
+		// Create Return message
+		returnMessage := &fenixTestDataSyncServerGrpcApi.AckNackResponse{
+			Acknack:    false,
+			Comments:   "Wrong proto file used. Expected: '" + protoFileExpected.String() + "', but got: '" + protoFileUsed.String() + "'",
+			ErrorCodes: errorCodes,
+		}
+
+		return returnMessage, nil
+
+	}
 
 	// Convert the merkleTree into a DataFrame object
 	merkleTreeAsDataFrame := fenixTestDataSyncServerObject.convertgRpcMerkleTreeMessageToDataframe(*merkleTreeMessage)
@@ -126,6 +195,29 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaderHash(ctx context.Con
 	// Get calling client
 	callingClientGuid := testDataHeaderHashMessageMessage.TestDataClientGuid
 
+	// Check if Client is using correct proto files version
+	clientUseCorrectProtoFileVersion, protoFileExpected, protoFileUsed := fenixTestDataSyncServerObject.isClientUsingCorrectProtoFileVersion(testDataHeaderHashMessageMessage.ProtoFileVersionUsedByClient)
+	if clientUseCorrectProtoFileVersion == false {
+		// Not correct proto-file version is used
+
+		// Set Error codes to return message
+		var errorCodes []fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+		var errorCode fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+
+		errorCode = fenixTestDataSyncServerGrpcApi.ErrorCodesEnum_ERROR_WRONG_PROTO_FILE_VERSION
+		errorCodes = append(errorCodes, errorCode)
+
+		// Create Return message
+		returnMessage := &fenixTestDataSyncServerGrpcApi.AckNackResponse{
+			Acknack:    false,
+			Comments:   "Wrong proto file used. Expected: '" + protoFileExpected.String() + "', but got: '" + protoFileUsed.String() + "'",
+			ErrorCodes: errorCodes,
+		}
+
+		return returnMessage, nil
+
+	}
+
 	// Convert gRPC-message into other 'format'
 	clientHeaderHash := testDataHeaderHashMessageMessage.HeadersHash
 
@@ -168,6 +260,29 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataHeaders(ctx context.Contex
 	// Get calling client
 	callingClientGuid := testDataHeaderMessage.TestDataClientGuid
 
+	// Check if Client is using correct proto files version
+	clientUseCorrectProtoFileVersion, protoFileExpected, protoFileUsed := fenixTestDataSyncServerObject.isClientUsingCorrectProtoFileVersion(testDataHeaderMessage.ProtoFileVersionUsedByClient)
+	if clientUseCorrectProtoFileVersion == false {
+		// Not correct proto-file version is used
+
+		// Set Error codes to return message
+		var errorCodes []fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+		var errorCode fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+
+		errorCode = fenixTestDataSyncServerGrpcApi.ErrorCodesEnum_ERROR_WRONG_PROTO_FILE_VERSION
+		errorCodes = append(errorCodes, errorCode)
+
+		// Create Return message
+		returnMessage := &fenixTestDataSyncServerGrpcApi.AckNackResponse{
+			Acknack:    false,
+			Comments:   "Wrong proto file used. Expected: '" + protoFileExpected.String() + "', but got: '" + protoFileUsed.String() + "'",
+			ErrorCodes: errorCodes,
+		}
+
+		return returnMessage, nil
+
+	}
+
 	// Convert gRPC-message into other 'format'
 	headerHash, headerItems := fenixTestDataSyncServerObject.convertgRpcHeaderMessageToStringArray(*testDataHeaderMessage)
 
@@ -208,6 +323,29 @@ func (s *FenixTestDataGrpcServicesServer) SendTestDataRows(ctx context.Context, 
 		"id": "755e8b4f-f184-4277-ad41-e041714c2ca8",
 	}).Debug("Outgoing 'SendTestDataRows'")
 
+	// Check if Client is using correct proto files version
+	clientUseCorrectProtoFileVersion, protoFileExpected, protoFileUsed := fenixTestDataSyncServerObject.isClientUsingCorrectProtoFileVersion(testdataRowsMessages.ProtoFileVersionUsedByClient)
+	if clientUseCorrectProtoFileVersion == false {
+		// Not correct proto-file version is used
+
+		// Set Error codes to return message
+		var errorCodes []fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+		var errorCode fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+
+		errorCode = fenixTestDataSyncServerGrpcApi.ErrorCodesEnum_ERROR_WRONG_PROTO_FILE_VERSION
+		errorCodes = append(errorCodes, errorCode)
+
+		// Create Return message
+		returnMessage := &fenixTestDataSyncServerGrpcApi.AckNackResponse{
+			Acknack:    false,
+			Comments:   "Wrong proto file used. Expected: '" + protoFileExpected.String() + "', but got: '" + protoFileUsed.String() + "'",
+			ErrorCodes: errorCodes,
+		}
+
+		return returnMessage, nil
+
+	}
+
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }
 
@@ -221,6 +359,29 @@ func (s *FenixTestDataGrpcServicesServer) RegisterTestDataClient(ctx context.Con
 	defer fenixTestDataSyncServerObject.logger.WithFields(logrus.Fields{
 		"id": "316dcd7e-2229-4a82-b15b-0f808c2dd8aa",
 	}).Debug("Outgoing 'RegisterTestDataClient'")
+
+	// Check if Client is using correct proto files version
+	clientUseCorrectProtoFileVersion, protoFileExpected, protoFileUsed := fenixTestDataSyncServerObject.isClientUsingCorrectProtoFileVersion(testDataClientInformationMessage.ProtoFileVersionUsedByClient)
+	if clientUseCorrectProtoFileVersion == false {
+		// Not correct proto-file version is used
+
+		// Set Error codes to return message
+		var errorCodes []fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+		var errorCode fenixTestDataSyncServerGrpcApi.ErrorCodesEnum
+
+		errorCode = fenixTestDataSyncServerGrpcApi.ErrorCodesEnum_ERROR_WRONG_PROTO_FILE_VERSION
+		errorCodes = append(errorCodes, errorCode)
+
+		// Create Return message
+		returnMessage := &fenixTestDataSyncServerGrpcApi.AckNackResponse{
+			Acknack:    false,
+			Comments:   "Wrong proto file used. Expected: '" + protoFileExpected.String() + "', but got: '" + protoFileUsed.String() + "'",
+			ErrorCodes: errorCodes,
+		}
+
+		return returnMessage, nil
+
+	}
 
 	return &fenixTestDataSyncServerGrpcApi.AckNackResponse{Acknack: true, Comments: ""}, nil
 }

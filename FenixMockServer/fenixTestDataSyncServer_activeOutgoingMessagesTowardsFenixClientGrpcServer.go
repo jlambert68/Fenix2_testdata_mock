@@ -33,7 +33,7 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) SetCo
 }
 
 // Get the highest ProtoFileVersionEnumeration
-func getHighestProtoFileVersion() int32 {
+func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) getHighestProtoFileVersion() int32 {
 
 	// Check if there already is a 'highestProtoFileVersion' saved, if so use that one
 	if highestProtoFileVersion != -1 {
@@ -55,6 +55,24 @@ func getHighestProtoFileVersion() int32 {
 	return highestProtoFileVersion
 }
 
+func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) isClientUsingCorrectProtoFileVersion(usedProtoFileVersion fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum) (clientUseCorrectProtoFileVersion bool, protoFileExpected fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum, protoFileUsed fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum) {
+
+	protoFileUsed = usedProtoFileVersion
+	protoFileExpected = fenixTestDataSyncServerGrpcApi.CurrentFenixTestDataProtoFileVersionEnum(fenixTestDataSyncServerObject.getHighestProtoFileVersion())
+
+	// Check if correct proto files is used
+	if protoFileExpected == protoFileUsed {
+		clientUseCorrectProtoFileVersion = true
+	} else {
+		clientUseCorrectProtoFileVersion = true
+	}
+
+	//protoFileExpectedDescription := protoFileExpected.String()
+	//protoFileExpectedDescription := protoFileExpected.String()
+
+	return clientUseCorrectProtoFileVersion, protoFileExpected, protoFileUsed
+}
+
 // Fenix Server asks Fenix client to register itself with the Fenix Testdata sync server
 //func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct)  RegisterTestDataClient(EmptyParameter) returns (AckNackResponse) {
 //}
@@ -66,7 +84,7 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) AskCl
 	fenixTestDataSyncServerObject.SetConnectionToFenixClientTestDataSyncServer()
 
 	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{
-		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(fenixTestDataSyncServerObject.getHighestProtoFileVersion()),
 	}
 
 	// Do gRPC-call
@@ -97,7 +115,7 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) AskCl
 	fenixTestDataSyncServerObject.SetConnectionToFenixClientTestDataSyncServer()
 
 	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{
-		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(fenixTestDataSyncServerObject.getHighestProtoFileVersion()),
 	}
 
 	// Do gRPC-call
@@ -129,7 +147,7 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) AskCl
 	fenixTestDataSyncServerObject.SetConnectionToFenixClientTestDataSyncServer()
 
 	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{
-		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(fenixTestDataSyncServerObject.getHighestProtoFileVersion()),
 	}
 
 	// Do gRPC-call
@@ -161,7 +179,7 @@ func (fenixTestDataSyncServerObject *fenixTestDataSyncServerObject_struct) AskCl
 	fenixTestDataSyncServerObject.SetConnectionToFenixClientTestDataSyncServer()
 
 	emptyParameter := &fenixClientTestDataSyncServerGrpcApi.EmptyParameter{
-		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(getHighestProtoFileVersion()),
+		ProtoFileVersionUsedByCaller: fenixClientTestDataSyncServerGrpcApi.CurrentFenixClientTestDataProtoFileVersionEnum(fenixTestDataSyncServerObject.getHighestProtoFileVersion()),
 	}
 
 	// Do gRPC-call
